@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Admin Dashboard - CoolWeb</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>CoolWeb</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('admin_dashboard') }}" class="active">Admin</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <div class="user-profile">
+                <a href="{{ url_for('profile') }}" class="profile-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ session.get('username') }}</span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile Settings</a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>User Details</h1>
+                <div class="breadcrumbs">
+                    <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a> / 
+                    <span>User Details</span>
+                </div>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="admin-content">
+                <div class="user-detail-container">
+                    <div class="user-profile-header">
+                        <div class="user-avatar">
+                            {% if user.profile_pic %}
+                            <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="{{ user.username }}'s profile picture">
+                            {% else %}
+                            <div class="avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <h2>{{ user.username }}</h2>
+                            <p class="user-email">{{ user.email }}</p>
+                            <div class="user-badges">
+                                {% if user.is_admin %}
+                                <span class="badge admin">Admin</span>
+                                {% endif %}
+                                <span class="badge">User</span>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            {% if user.id != session.get('user_id') %}
+                            <form action="{{ url_for('admin_toggle_admin', user_id=user.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="action-btn admin-btn">
+                                    {% if user.is_admin %}
+                                    <i class="fas fa-user-minus"></i> Remove Admin
+                                    {% else %}
+                                    <i class="fas fa-user-plus"></i> Make Admin
+                                    {% endif %}
+                                </button>
+                            </form>
+                            
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="post" class="inline-form delete-form">
+                                <button type="submit" class="action-btn delete-btn">
+                                    <i class="fas fa-trash-alt"></i> Delete User
+                                </button>
+                            </form>
+                            {% else %}
+                            <div class="self-user-notice">
+                                <i class="fas fa-info-circle"></i> This is your account
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="user-details">
+                        <div class="detail-section">
+                            <h3>Account Information</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">User ID</div>
+                                    <div class="detail-value">{{ user.id }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Username</div>
+                                    <div class="detail-value">{{ user.username }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Email</div>
+                                    <div class="detail-value">{{ user.email }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Full Name</div>
+                                    <div class="detail-value">{{ user.full_name if user.full_name else 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Admin Status</div>
+                                    <div class="detail-value">{{ 'Yes' if user.is_admin else 'No' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Created At</div>
+                                    <div class="detail-value">{{ user.created_at }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>Profile Information</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">Bio</div>
+                                    <div class="detail-value">{{ user.bio if user.bio else 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Location</div>
+                                    <div class="detail-value">{{ user.location if user.location else 'Not provided' }}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Website</div>
+                                    <div class="detail-value">
+                                        {% if user.website %}
+                                        <a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
+                                        {% else %}
+                                        Not provided
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Profile Picture</div>
+                                    <div class="detail-value">
+                                        {% if user.profile_pic %}
+                                        <span class="has-profile-pic">Yes</span>
+                                        {% else %}
+                                        <span class="no-profile-pic">No</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="back-to-admin">
+                        <a href="{{ url_for('admin_dashboard') }}" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>CoolWeb</h2>
+                <p>Your awesome web experience</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CoolWeb. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html> 

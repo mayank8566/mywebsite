@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loaders.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .auth-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .auth-tab.active {
+            background: rgba(111, 66, 193, 0.7);
+        }
+        
+        .auth-forms {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        h2 {
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #8e44ad, #6f42c1);
+        }
+        
+        .switch-form {
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .switch-form a {
+            color: #6f42c1;
+            text-decoration: none;
+        }
+        
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 0, 0.2);
+            color: #51cf66;
+        }
+        
+        /* Ban popup styles */
+        .ban-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .ban-popup {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(255, 65, 108, 0.7);
+            box-shadow: 0 0 40px rgba(255, 65, 108, 0.5), 
+                        inset 0 0 20px rgba(255, 65, 108, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+            animation: popInBan 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 0.2s;
+        }
+        
+        .ban-popup::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 65, 108, 0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite;
+            opacity: 0.7;
+        }
+        
+        .ban-popup::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 65, 108, 0.4) 0%, transparent 70%);
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .ban-icon {
+            font-size: 80px;
+            color: #ff416c;
+            margin-bottom: 25px;
+            position: relative;
+            animation: pulseIcon 2s infinite;
+            text-shadow: 0 0 20px rgba(255, 65, 108, 0.7);
+            display: inline-block;
+        }
+        
+        .ban-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background: radial-gradient(ellipse, rgba(255, 65, 108, 0.3) 0%, transparent 70%);
+            bottom: -10px;
+            left: 0;
+            filter: blur(5px);
+            animation: pulseIcon 2s infinite reverse;
+        }
+        
+        .ban-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 65, 108, 0.5);
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .ban-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, rgba(255, 65, 108, 0.8), transparent);
+        }
+        
+        .ban-username {
+            font-size: 22px;
+            color: #ff6b6b;
+            margin: 25px 0 15px;
+            font-weight: 600;
+            padding: 5px 15px;
+            background: rgba(255, 65, 108, 0.1);
+            border-radius: 50px;
+            display: inline-block;
+            border: 1px solid rgba(255, 65, 108, 0.2);
+        }
+        
+        .ban-message {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            font-size: 17px;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .ban-reason {
+            background: rgba(255, 65, 108, 0.1);
+            padding: 18px;
+            border-radius: 12px;
+            margin: 25px auto;
+            color: #ff9999;
+            font-style: italic;
+            max-width: 90%;
+            border: 1px solid rgba(255, 65, 108, 0.3);
+            box-shadow: inset 0 0 10px rgba(255, 65, 108, 0.1);
+            position: relative;
+        }
+        
+        .ban-reason strong {
+            color: #ffb3b3;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .ban-button {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.3);
+        }
+        
+        .ban-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.4);
+        }
+        
+        .ban-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.3);
+        }
+        
+        .ban-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .ban-button:hover::before {
+            left: 100%;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes popInBan {
+            0% {
+                transform: scale(0.8) translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulseIcon {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% if show_ban_popup %}
+    <div class="ban-popup-overlay">
+        <div class="ban-popup">
+            <div class="ban-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h2 class="ban-title">Account Banned</h2>
+            {% if ban_username %}
+            <div class="ban-username">@{{ ban_username }}</div>
+            {% endif %}
+            <p class="ban-message">Your account has been banned from accessing CosmicTeams.</p>
+            <div class="ban-reason">
+                <strong>Reason for Ban</strong>
+                {{ ban_reason }}
+            </div>
+            <p class="ban-message">If you believe this is an error, please contact our support team through our help portal.</p>
+            <button class="ban-button" onclick="closeBanPopup()">
+                <span>I Understand</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container">
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="login-tab">Login</button>
+            <button class="auth-tab" id="register-tab">Register</button>
+        </div>
+        
+        <div class="auth-forms">
+            <!-- Login Form -->
+            <div class="form-container active" id="login-form">
+                <h2>Login to Your Account</h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="message {{ category }}-message">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form action="{{ url_for('login') }}" method="post">
+                    <div class="input-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" name="username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    
+                    <div class="input-group remember-me">
+                        <input type="checkbox" id="remember_me" name="remember_me">
+                        <label for="remember_me">Remember me for 30 days</label>
+                    </div>
+                    
+                    <button type="submit" class="btn">Login</button>
+                </form>
+                
+                <div class="switch-form">
+                    Don't have an account? <a href="#" id="to-register">Register</a>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="form-container" id="register-form">
+                <h2>Create an Account</h2>
+                
+                <form action="{{ url_for('register') }}" method="post">
+                    <div class="input-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" name="username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="register-confirm-password">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" name="confirm_password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn">Register</button>
+                </form>
+                
+                <div class="switch-form">
+                    Already have an account? <a href="#" id="to-login">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const toRegister = document.getElementById('to-register');
+            const toLogin = document.getElementById('to-login');
+            
+            // Switch to register form
+            function showRegisterForm() {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+            
+            // Switch to login form
+            function showLoginForm() {
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+                registerTab.classList.remove('active');
+                loginTab.classList.add('active');
+            }
+            
+            registerTab.addEventListener('click', showRegisterForm);
+            toRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegisterForm();
+            });
+            
+            loginTab.addEventListener('click', showLoginForm);
+            toLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginForm();
+            });
+        });
+        
+        // Function to close the ban popup
+        function closeBanPopup() {
+            const overlay = document.querySelector('.ban-popup-overlay');
+            const popup = document.querySelector('.ban-popup');
+            
+            if (overlay && popup) {
+                // First animate the popup
+                popup.style.transform = 'scale(0.9) translateY(20px)';
+                popup.style.opacity = '0';
+                popup.style.transition = 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+                
+                // Then fade out the overlay
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    overlay.style.transition = 'opacity 0.5s ease';
+                    
+                    // Finally remove the element
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 500);
+                }, 200);
+            }
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/loaders.js') }}"></script>
+</body>
+</html> 

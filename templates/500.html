@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | CoolWeb</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .error-code::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background-color: rgba(255, 107, 107, 0.2);
+            bottom: 15px;
+            left: 0;
+            z-index: -1;
+            border-radius: 5px;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .home-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .home-btn:hover {
+            background-color: #3a5bd9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(74, 108, 247, 0.3);
+        }
+        
+        .refresh-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .refresh-btn:hover {
+            background-color: rgba(74, 108, 247, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .error-illustration {
+            max-width: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-10px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(10px);
+            }
+        }
+        
+        .shake {
+            animation: shake 5s cubic-bezier(.36,.07,.19,.97) infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @media screen and (max-width: 576px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>CoolWeb</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('index') }}#features">Features</a></li>
+                <li><a href="{{ url_for('index') }}#about">About</a></li>
+                <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{{ url_for('login') }}" class="login-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+        </div>
+    </header>
+
+    <main>
+        <div class="error-container">
+            <div class="error-illustration shake">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+                    <style>
+                        .st0{fill:#F5F7FA;}
+                        .st1{fill:#4A6CF7;}
+                        .st2{fill:#FF6B6B;}
+                        .st3{fill:#FFFFFF;}
+                        .st4{fill:#E4E8F0;}
+                        
+                        @keyframes rotate {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                        
+                        .rotate {
+                            transform-origin: center;
+                            animation: rotate 10s linear infinite;
+                        }
+                        
+                        @keyframes blink {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.3; }
+                        }
+                        
+                        .blink {
+                            animation: blink 2s ease-in-out infinite;
+                        }
+                    </style>
+                    
+                    <!-- Background -->
+                    <rect class="st0" width="500" height="500" rx="20" ry="20"/>
+                    
+                    <!-- Server -->
+                    <rect class="st4" x="175" y="150" width="150" height="200" rx="10" ry="10"/>
+                    <rect class="st3" x="185" y="160" width="130" height="180" rx="5" ry="5"/>
+                    
+                    <!-- Server lights -->
+                    <circle class="st2 blink" cx="200" cy="180" r="5"/>
+                    <circle class="st1 blink" cx="200" cy="200" r="5"/>
+                    <circle class="st2 blink" cx="200" cy="220" r="5"/>
+                    
+                    <!-- Gears -->
+                    <g class="rotate" transform="translate(300, 180)">
+                        <path class="st1" d="M0,-30 L5,-13 L20,-20 L15,-5 L30,0 L15,5 L20,20 L5,13 L0,30 L-5,13 L-20,20 L-15,5 L-30,0 L-15,-5 L-20,-20 L-5,-13 Z" opacity="0.7"/>
+                    </g>
+                    
+                    <g class="rotate" transform="translate(150, 300)" style="animation-direction: reverse;">
+                        <path class="st2" d="M0,-20 L4,-9 L15,-13 L10,-3 L20,0 L10,3 L15,13 L4,9 L0,20 L-4,9 L-15,13 L-10,3 L-20,0 L-10,-3 L-15,-13 L-4,-9 Z" opacity="0.7"/>
+                    </g>
+                    
+                    <!-- Error symbol -->
+                    <g class="pulse" transform="translate(250, 250)">
+                        <circle class="st2" cx="0" cy="0" r="40" opacity="0.2"/>
+                        <text x="0" y="15" font-family="Arial" font-size="50" font-weight="bold" fill="#FF6B6B" text-anchor="middle">!</text>
+                    </g>
+                    
+                    <!-- Decorative elements -->
+                    <circle class="st1" cx="100" cy="100" r="20" opacity="0.3"/>
+                    <circle class="st2" cx="400" cy="400" r="25" opacity="0.2"/>
+                    <circle class="st1" cx="400" cy="150" r="15" opacity="0.2"/>
+                    <circle class="st2" cx="100" cy="400" r="10" opacity="0.3"/>
+                </svg>
+            </div>
+            
+            <h1 class="error-code">500</h1>
+            <h2 class="error-title">Server Error</h2>
+            <p class="error-message">Oops! Something went wrong on our server. We're working to fix the issue. Please try again later or contact our support team if the problem persists.</p>
+            
+            <div class="error-actions">
+                <a href="{{ url_for('index') }}" class="home-btn">Go to Homepage</a>
+                <a href="javascript:location.reload()" class="refresh-btn">Refresh Page</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>CoolWeb</h2>
+                <p>Your awesome web experience</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('index') }}#features">Features</a></li>
+                    <li><a href="{{ url_for('index') }}#about">About</a></li>
+                    <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CoolWeb. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,707 @@
+/* Galaxy Theme Authentication CSS */
+:root {
+    --primary-color: #8a2be2; /* BlueViolet */
+    --secondary-color: #4b0082; /* Indigo */
+    --accent-color: #9370db; /* MediumPurple */
+    --background-color: #0a0a20; /* Very dark blue */
+    --input-bg-color: rgba(30, 30, 60, 0.5);
+    --text-color: #ffffff;
+    --header-color: #f8f8ff; /* GhostWhite */
+    --star-color: #ffffff;
+    --transition: all 0.3s ease;
+    --border-radius: 12px;
+    --box-shadow: 0 5px 20px rgba(106, 90, 205, 0.3);
+    --button-glow: 0 0 15px rgba(147, 112, 219, 0.8);
+    --planet-color: #673ab7;
+    --moon-color: #b39ddb;
+    --rocket-color: #9c27b0;
+    --flame-color: #ff9800;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0a0a20 0%, #1a1a3a 50%, #0a0a20 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    color: var(--text-color);
+}
+
+/* Stars background */
+#stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkle infinite ease-in-out;
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: 600px;
+    background: rgba(20, 20, 40, 0.7);
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.forms-container {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: var(--transition);
+    padding: 0 40px;
+}
+
+.forms-wrapper {
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+    transition: var(--transition);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: var(--transition);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.login-form {
+    opacity: 1;
+    z-index: 2;
+}
+
+.register-form {
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+h2 {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--header-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, #e0aaff, #9370db, #7b68ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 8px rgba(123, 104, 238, 0.2);
+}
+
+.form-icon {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.icon-circle i {
+    font-size: 30px;
+    color: #ffffff;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(138, 43, 226, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(138, 43, 226, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(138, 43, 226, 0);
+    }
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #b0b0d0;
+    font-size: 0.9rem;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9370db;
+    font-size: 1rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    background: var(--input-bg-color);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.3);
+    background: rgba(40, 40, 80, 0.6);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9370db;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.toggle-password:hover {
+    color: var(--accent-color);
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+}
+
+.remember-forgot label {
+    display: flex;
+    align-items: center;
+    color: #b0b0d0;
+    cursor: pointer;
+}
+
+.remember-forgot label input {
+    margin-right: 8px;
+    accent-color: var(--accent-color);
+}
+
+.forgot-link {
+    color: #9370db;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.forgot-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.cosmic-btn {
+    padding: 12px 20px;
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-family: 'Poppins', sans-serif;
+}
+
+.cosmic-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.cosmic-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--button-glow);
+}
+
+.cosmic-btn:hover:before {
+    left: 100%;
+}
+
+.cosmic-btn i {
+    margin-left: 10px;
+    font-size: 1.1rem;
+}
+
+.cosmic-btn.transparent {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.cosmic-btn.transparent:hover {
+    background: rgba(147, 112, 219, 0.1);
+}
+
+.login-btn, .register-btn {
+    margin-bottom: 20px;
+}
+
+.terms {
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+}
+
+.terms label {
+    display: flex;
+    align-items: center;
+    color: #b0b0d0;
+    cursor: pointer;
+}
+
+.terms label input {
+    margin-right: 8px;
+    accent-color: var(--accent-color);
+}
+
+.terms label a {
+    color: #9370db;
+    text-decoration: none;
+    margin-left: 5px;
+    transition: var(--transition);
+}
+
+.terms label a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.switch-form {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #b0b0d0;
+}
+
+.switch-form a {
+    color: #9370db;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 5px;
+    transition: var(--transition);
+}
+
+.switch-form a:hover {
+    color: var(--accent-color);
+}
+
+.panels-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10%;
+    text-align: center;
+    z-index: 7;
+    transition: var(--transition);
+}
+
+.panel .content {
+    color: var(--text-color);
+    transition: var(--transition);
+    width: 100%;
+}
+
+.left-panel {
+    pointer-events: none;
+    padding: 3rem 17% 2rem 12%;
+}
+
+.right-panel {
+    pointer-events: all;
+    padding: 3rem 12% 2rem 17%;
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.7), rgba(138, 43, 226, 0.7));
+    clip-path: polygon(50% 0%, 100% 0, 100% 100%, 0 100%);
+}
+
+.panel h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.panel p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.message {
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    text-align: center;
+    animation: fadeIn 0.5s;
+}
+
+.error-message {
+    background-color: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #ff6b6b;
+}
+
+.success-message {
+    background-color: rgba(40, 167, 69, 0.2);
+    border: 1px solid rgba(40, 167, 69, 0.5);
+    color: #75e6a9;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Planet Animation */
+.planet-animation {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin-top: 30px;
+}
+
+.planet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at 30% 30%, var(--planet-color), #331866);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(103, 58, 183, 0.7);
+    animation: glow 4s infinite alternate;
+}
+
+.orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 170px;
+    height: 170px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: rotate 20s linear infinite;
+}
+
+.moon {
+    position: absolute;
+    top: -10px;
+    left: calc(50% - 10px);
+    width: 20px;
+    height: 20px;
+    background: var(--moon-color);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(179, 157, 219, 0.7);
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 20px rgba(103, 58, 183, 0.7); }
+    100% { box-shadow: 0 0 40px rgba(103, 58, 183, 0.9); }
+}
+
+@keyframes rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Rocket Animation */
+.rocket-animation {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin-top: 30px;
+}
+
+.rocket {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    animation: float 5s ease-in-out infinite;
+}
+
+.rocket-body {
+    width: 60px;
+    height: 80px;
+    background: var(--rocket-color);
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+}
+
+.window {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    top: 20px;
+    left: 20px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.fins {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.fin {
+    position: absolute;
+    width: 20px;
+    height: 30px;
+    background: #7b1fa2;
+    border-radius: 0 0 50% 50%;
+}
+
+.fin:nth-child(1) {
+    transform: rotate(0deg);
+    bottom: -20px;
+    left: 20px;
+}
+
+.fin:nth-child(2) {
+    transform: rotate(90deg);
+    bottom: 10px;
+    right: -20px;
+}
+
+.fin:nth-child(3) {
+    transform: rotate(-90deg);
+    bottom: 10px;
+    left: -20px;
+}
+
+.exhaust-flame {
+    position: absolute;
+    bottom: -30px;
+    left: 20px;
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(to bottom, var(--flame-color), transparent);
+    border-radius: 0 0 50% 50%;
+    animation: flame 0.5s infinite alternate;
+    transform-origin: top center;
+}
+
+.stars .star {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    animation: starTwinkle 1.5s infinite alternate;
+}
+
+.stars .star:nth-child(1) {
+    top: 30px;
+    left: 30px;
+    animation-delay: 0.3s;
+}
+
+.stars .star:nth-child(2) {
+    top: 120px;
+    left: 150px;
+    animation-delay: 0.5s;
+}
+
+.stars .star:nth-child(3) {
+    top: 180px;
+    left: 60px;
+    animation-delay: 0.7s;
+}
+
+.stars .star:nth-child(4) {
+    top: 50px;
+    left: 180px;
+    animation-delay: 0.9s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(-50%, -50%) rotate(45deg) translateY(0); }
+    50% { transform: translate(-50%, -50%) rotate(45deg) translateY(-10px); }
+}
+
+@keyframes flame {
+    0% { height: 30px; opacity: 0.7; }
+    100% { height: 40px; opacity: 1; }
+}
+
+@keyframes starTwinkle {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Toggle active state */
+.container.register-active .forms-container {
+    left: 50%;
+}
+
+.container.register-active .login-form {
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.container.register-active .register-form {
+    opacity: 1;
+    z-index: 2;
+    pointer-events: all;
+}
+
+.container.register-active .panels-container {
+    transform: translateX(-50%);
+}
+
+.container.register-active .left-panel {
+    pointer-events: all;
+}
+
+.container.register-active .right-panel {
+    pointer-events: none;
+    clip-path: polygon(50% 0%, 100% 0, 100% 100%, 100% 100%);
+}
+
+/* Responsive design */
+@media screen and (max-width: 870px) {
+    .container {
+        max-width: 100%;
+        height: auto;
+        min-height: 800px;
+    }
+    
+    .forms-container {
+        width: 100%;
+        top: 0;
+        left: 0;
+        height: auto;
+        min-height: 500px;
+        padding: 40px;
+    }
+    
+    .panels-container {
+        display: none;
+    }
+    
+    .forms-wrapper {
+        position: relative;
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .login-form, .register-form {
+        padding: 20px 0;
+        position: relative;
+    }
+    
+    .register-form {
+        display: none;
+        opacity: 0;
+    }
+    
+    .container.register-active .login-form {
+        display: none;
+    }
+    
+    .container.register-active .register-form {
+        display: flex;
+        opacity: 1;
+    }
+} 

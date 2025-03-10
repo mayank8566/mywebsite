@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .teams-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .teams-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .team-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(30, 30, 60, 0.6);
+            color: #fff;
+            border: 1px solid var(--accent-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        
+        .no-teams {
+            text-align: center;
+            padding: 50px 0;
+            background: rgba(30, 30, 60, 0.6);
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .no-teams i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        
+        .no-teams p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}" class="active">Teams</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="teams-container">
+            <div class="teams-header">
+                <h1>Teams</h1>
+                {% if session.get('user_id') and (session.get('is_admin') or can_create_team) %}
+                <a href="{{ url_for('create_team') }}" class="cosmic-btn glow">
+                    <i class="fas fa-plus"></i> Create Team
+                </a>
+                {% endif %}
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="team-filters">
+                <button class="filter-btn active" data-filter="all">All Teams</button>
+                <button class="filter-btn" data-filter="my-teams">My Teams</button>
+                <button class="filter-btn" data-filter="top-teams">Top Teams</button>
+                <button class="filter-btn" data-filter="newest">Newest</button>
+            </div>
+            
+            {% if teams %}
+                <div class="teams-grid">
+                    {% for team in teams %}
+                        <div class="team-card" 
+                             data-team-id="{{ team.id }}"
+                             data-points="{{ team.points }}"
+                             data-created="{{ team.created_at }}"
+                             data-is-member="{% if session.get('user_id') in team.member_ids %}true{% else %}false{% endif %}">
+                            <div class="card-glow"></div>
+                            <div class="team-header">
+                                <div class="team-logo">
+                                    {% if team.logo %}
+                                    <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                                    {% else %}
+                                    <i class="fas fa-users"></i>
+                                    {% endif %}
+                                </div>
+                                <h3 class="team-name">{{ team.name }}</h3>
+                            </div>
+                            <div class="team-content">
+                                <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                                <div class="team-stats">
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.points }}</span>
+                                        <span class="stat-label">Points</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.member_count }}</span>
+                                        <span class="stat-label">Members</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{% if team.leader_name %}{{ team.leader_name[:1] | upper }}{% if team.leader_name|length > 1 %}{{ team.leader_name[1:] }}{% endif %}{% else %}-{% endif %}</span>
+                                        <span class="stat-label">Leader</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-footer">
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-teams">
+                    <i class="fas fa-users-slash"></i>
+                    <p>No teams found</p>
+                    {% if session.get('user_id') and (session.get('is_admin') or can_create_team) %}
+                    <a href="{{ url_for('create_team') }}" class="cosmic-btn glow">Create Your Team</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/galaxy.js') }}"></script>
+    <script>
+        // Team filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const teamCards = document.querySelectorAll('.team-card');
+            
+            // Function to show/hide team cards based on filter
+            function filterTeams(filter) {
+                teamCards.forEach(card => {
+                    // Default to showing the card
+                    let shouldShow = true;
+                    
+                    // Apply specific filters
+                    if (filter === 'my-teams') {
+                        // Show only teams where the user is a member
+                        shouldShow = card.getAttribute('data-is-member') === 'true';
+                    } 
+                    else if (filter === 'top-teams') {
+                        // Sort by points and show
+                        shouldShow = true; // We'll handle sorting separately
+                    }
+                    else if (filter === 'newest') {
+                        // Sort by creation date and show
+                        shouldShow = true; // We'll handle sorting separately
+                    }
+                    
+                    // Apply the visibility
+                    card.style.display = shouldShow ? 'block' : 'none';
+                });
+                
+                // Handle sorting for special filters
+                const teamsGrid = document.querySelector('.teams-grid');
+                const cardsArray = Array.from(teamCards).filter(card => card.style.display !== 'none');
+                
+                if (filter === 'top-teams') {
+                    // Sort by points (highest first)
+                    cardsArray.sort((a, b) => {
+                        const pointsA = parseInt(a.getAttribute('data-points')) || 0;
+                        const pointsB = parseInt(b.getAttribute('data-points')) || 0;
+                        return pointsB - pointsA;
+                    });
+                    
+                    // Only show the top 3 teams
+                    cardsArray.forEach((card, index) => {
+                        if (index < 3) {
+                            card.style.display = 'block';
+                            // Add special class to highlight top 3
+                            card.classList.add(`team-card-top-${index+1}`);
+                        } else {
+                            card.style.display = 'none';
+                            card.classList.remove('team-card-top-1', 'team-card-top-2', 'team-card-top-3');
+                        }
+                    });
+                } 
+                else if (filter === 'newest') {
+                    // Sort by creation date (newest first)
+                    cardsArray.sort((a, b) => {
+                        const dateA = new Date(a.getAttribute('data-created') || 0);
+                        const dateB = new Date(b.getAttribute('data-created') || 0);
+                        return dateB - dateA;
+                    });
+                }
+                
+                // Re-append the cards in the new order
+                if (filter === 'top-teams' || filter === 'newest') {
+                    cardsArray.forEach(card => {
+                        teamsGrid.appendChild(card);
+                    });
+                }
+            }
+            
+            // Add click events to filter buttons
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    filterTeams(filter);
+                });
+            });
+            
+            // Initialize with "All Teams" filter
+            filterTeams('all');
+        });
+    </script>
+</body>
+</html> 

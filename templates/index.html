@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MineCraft - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .top-teams-section {
+            padding: 50px 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            margin-top: 30px;
+        }
+        
+        .top-teams-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .team-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .team-rank {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .team-header {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+        }
+        
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .team-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .team-logo i {
+            font-size: 30px;
+            color: #fff;
+        }
+        
+        .team-name {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .team-content {
+            padding: 20px;
+        }
+        
+        .team-description {
+            color: #ddd;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .team-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffcc00;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+        
+        .team-footer {
+            padding: 15px 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .view-team-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .view-team-btn:hover {
+            background-color: #3e8e41;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .teams-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="minecraft-theme">
+    <header class="minecraft-header">
+        <div class="logo">
+            <h1>MineCraft</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="active">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn minecraft-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn minecraft-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn minecraft-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome to MineCraft</h1>
+                <p>Join the ultimate Minecraft community. Create teams, compete, and showcase your skills!</p>
+                {% if not session.get('user_id') %}
+                <div class="hero-buttons">
+                    <a href="{{ url_for('register') }}" class="minecraft-btn green">Join Now</a>
+                    <a href="{{ url_for('login') }}" class="minecraft-btn">Login</a>
+                </div>
+                {% else %}
+                <div class="hero-buttons">
+                    <a href="{{ url_for('profile') }}" class="minecraft-btn green">My Profile</a>
+                    <a href="{{ url_for('teams') }}" class="minecraft-btn">Browse Teams</a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="top-teams-section">
+            <div class="top-teams-container">
+                <h2 class="section-title">Top Teams</h2>
+                
+                {% if top_teams %}
+                <div class="teams-grid">
+                    {% for team in top_teams %}
+                    <div class="team-card">
+                        <div class="team-rank">{{ loop.index }}</div>
+                        <div class="team-header">
+                            <div class="team-logo">
+                                {% if team.logo %}
+                                <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                                {% else %}
+                                <i class="fas fa-users"></i>
+                                {% endif %}
+                            </div>
+                            <h3 class="team-name">{{ team.name }}</h3>
+                        </div>
+                        <div class="team-content">
+                            <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                            <div class="team-stats">
+                                <div class="team-stat">
+                                    <span class="stat-value">{{ team.points }}</span>
+                                    <span class="stat-label">Points</span>
+                                </div>
+                                <div class="team-stat">
+                                    <span class="stat-value">{{ team.member_count }}</span>
+                                    <span class="stat-label">Members</span>
+                                </div>
+                                <div class="team-stat">
+                                    <span class="stat-value">{{ team.leader_name[:1] if team.leader_name else '-' }}</span>
+                                    <span class="stat-label">Leader</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-footer">
+                            <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-teams-message">
+                    <p>No teams have been created yet. Be the first to create a team!</p>
+                    {% if session.get('user_id') and (session.get('is_admin') or can_create_team) %}
+                    <a href="{{ url_for('create_team') }}" class="minecraft-btn green">Create Team</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Team Management</h3>
+                    <p>Create and manage your Minecraft teams. Invite players, assign roles, and coordinate strategies.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Competitions</h3>
+                    <p>Participate in regular competitions and earn points for your team. Climb the leaderboard and gain recognition.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Skill Tracking</h3>
+                    <p>Track your progress in different Minecraft skills. See how you compare to other players.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-envelope"></i>
+                    <h3>In-App Messaging</h3>
+                    <p>Communicate with team members and other players through our integrated messaging system.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about" id="about">
+            <div class="about-content">
+                <h2>About MineCraft</h2>
+                <p>MineCraft is a community platform for Minecraft enthusiasts. Our mission is to bring players together, foster teamwork, and celebrate the creativity and skill that makes Minecraft special.</p>
+                <p>Whether you're a builder, a redstone engineer, a PvP champion, or just starting out, MineCraft has something for you. Join our community today!</p>
+            </div>
+        </section>
+
+        <section class="contact" id="contact">
+            <h2>Contact Us</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p>contact@minecraft-community.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>123 Block Street, Minecraft City</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+1 (555) 123-4567</p>
+                    </div>
+                </div>
+                <div class="contact-social">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="minecraft-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>MINECRAFT</h2>
+                <p>© Mojang AB. Not an official Minecraft product.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>This is a demo website. Not affiliated with Mojang or Microsoft.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

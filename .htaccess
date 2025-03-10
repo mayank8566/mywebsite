@@ -1,0 +1,30 @@
+# Enable mod_rewrite
+RewriteEngine On
+
+# Set the base directory - adjust if your app is in a subdirectory
+RewriteBase /
+
+# If the requested filename exists, serve it
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Serve static files directly
+RewriteRule ^(static/.*)$ $1 [L]
+
+# Route everything else to the WSGI application
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ wsgi.py/$1 [L]
+
+# Set the default file handler for Python
+AddHandler cgi-script .py
+Options +ExecCGI
+
+# If using FastCGI instead of CGI (common in shared hosting)
+# AddHandler fcgid-script .py
+
+# Set PYTHONPATH if needed
+# SetEnv PYTHONPATH /path/to/your/app
+
+# Optional: Set Flask environment to production
+SetEnv FLASK_ENV production
+SetEnv FLASK_DEBUG 0 

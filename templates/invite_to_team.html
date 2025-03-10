@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invite Members - {{ team.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teams.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="minecraft-theme">
+    <header class="minecraft-header">
+        <div class="logo">
+            <h1>MineCraft</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}" class="active">Teams</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn minecraft-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn minecraft-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="team-details-main">
+        <div class="team-details-container">
+            <div class="team-details-header">
+                <a href="{{ url_for('view_team', team_id=team.id) }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Team</a>
+                <h1>Invite Members to {{ team.name }}</h1>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="invite-form-container">
+                <div class="team-info-card">
+                    <div class="team-logo-large">
+                        {% if team.logo %}
+                        <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                        {% else %}
+                        <div class="default-logo">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="team-details">
+                        <h2>{{ team.name }}</h2>
+                        <p class="team-description">{{ team.description }}</p>
+                        
+                        <form action="{{ url_for('invite_to_team', team_id=team.id) }}" method="post" class="invite-form">
+                            <div class="form-group">
+                                <label for="username">Username to Invite:</label>
+                                <input type="text" id="username" name="username" required class="minecraft-input" placeholder="Enter username">
+                                <p class="form-help">Enter the exact username of the player you want to invite</p>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="minecraft-btn green">Send Invitation</button>
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="minecraft-btn">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="invite-info">
+                    <h3>About Team Invitations</h3>
+                    <ul>
+                        <li>Invitations are sent via the in-game mail system</li>
+                        <li>Players can accept or decline your invitation</li>
+                        <li>Players can only be in one team at a time</li>
+                        <li>You can only invite players who are not already in a team</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="minecraft-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>MINECRAFT</h2>
+                <p>© Mojang AB. Not an official Minecraft product.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>This is a demo website. Not affiliated with Mojang or Microsoft.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

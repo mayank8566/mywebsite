@@ -1,0 +1,558 @@
+/* Loader and Animation Styles */
+
+/* Overlay that covers the entire screen during loading */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 8, 30, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s, visibility 0.4s;
+}
+
+.loader-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Galaxy loader container */
+.galaxy-loader {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    perspective: 800px;
+    transform-style: preserve-3d;
+}
+
+/* Galaxy spiral */
+.galaxy-spiral {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    height: 150px;
+    margin-top: -75px;
+    margin-left: -75px;
+    border-radius: 50%;
+    box-shadow: 
+        0 0 60px 30px rgba(111, 66, 193, 0.8),
+        0 0 100px 60px rgba(91, 34, 201, 0.5),
+        0 0 140px 90px rgba(71, 22, 179, 0.3);
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(111, 66, 193, 0.6) 20%,
+        rgba(71, 22, 179, 0.4) 40%,
+        rgba(16, 18, 27, 0.1) 60%,
+        transparent 100%
+    );
+    animation: spiral-rotate 5s infinite linear;
+}
+
+/* Galaxy stars */
+.galaxy-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle 3s infinite;
+}
+
+/* Galaxy Arms */
+.galaxy-arm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 2px;
+    margin-top: -1px;
+    margin-left: -50px;
+    background: linear-gradient(
+        to right,
+        rgba(111, 66, 193, 0.8),
+        rgba(255, 255, 255, 0.6)
+    );
+    transform-origin: left center;
+}
+
+.galaxy-arm:nth-child(1) {
+    transform: rotate(0deg);
+}
+
+.galaxy-arm:nth-child(2) {
+    transform: rotate(90deg);
+}
+
+.galaxy-arm:nth-child(3) {
+    transform: rotate(180deg);
+}
+
+.galaxy-arm:nth-child(4) {
+    transform: rotate(270deg);
+}
+
+/* Message displayed below the loader */
+.loader-message {
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(111, 66, 193, 0.8);
+}
+
+/* Simple Circular Loader for Login/Register */
+.circular-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 8, 30, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.circular-loader-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.circular-loader {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circular-loader-inner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.circular-loader-message {
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+/* Cosmic Entry Animation (Spaceship) */
+.cosmic-entry {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+}
+
+.cosmic-entry.active {
+    display: block;
+}
+
+.cosmic-entry.completed {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.cosmic-entry-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    perspective: 1000px;
+    overflow: hidden;
+}
+
+.space-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #000000, #0a0a2a, #1a1a4a);
+}
+
+.cosmic-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.cosmic-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: cosmic-fly 4s linear forwards;
+}
+
+.spaceship {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+    z-index: 10;
+    animation: spaceship-enter 4s ease-in forwards;
+}
+
+.spaceship-body {
+    width: 120px;
+    height: 50px;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.9) 0%, rgba(200,200,255,0.6) 70%, rgba(150,150,255,0.4) 100%);
+    border-radius: 50% 50% 10% 10% / 60% 60% 40% 40%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 0 20px 5px rgba(255,255,255,0.7),
+        0 0 40px 10px rgba(150,150,255,0.5);
+}
+
+.spaceship-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, 
+            rgba(255,0,0,0.2) 0%, 
+            rgba(255,165,0,0.2) 20%, 
+            rgba(255,255,0,0.2) 40%, 
+            rgba(0,255,0,0.2) 60%, 
+            rgba(0,0,255,0.2) 80%, 
+            rgba(128,0,128,0.2) 100%);
+    animation: rainbow-shimmer 2s linear infinite;
+}
+
+.spaceship-window {
+    width: 30px;
+    height: 15px;
+    background-color: rgba(100, 200, 255, 0.8);
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 10px 5px rgba(100, 200, 255, 0.5);
+}
+
+.spaceship-engines {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.engine-flame {
+    width: 15px;
+    height: 25px;
+    border-radius: 0 0 50% 50%;
+    background: linear-gradient(to bottom, rgba(255, 165, 0, 0.9), rgba(255, 0, 0, 0.6));
+    animation: flame-flicker 0.2s infinite alternate;
+}
+
+.flame-left {
+    animation-delay: 0.1s;
+}
+
+.flame-center {
+    width: 20px;
+    height: 35px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 165, 0, 0.8), rgba(255, 0, 0, 0.6));
+}
+
+.flame-right {
+    animation-delay: 0.15s;
+}
+
+.cosmic-portal {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(200, 100, 255, 0.8) 30%,
+        rgba(100, 50, 200, 0.6) 60%,
+        transparent 100%
+    );
+    transform: translate(-50%, 50%);
+    animation: portal-grow 4s cubic-bezier(0.1, 0.8, 0.5, 1) forwards;
+    box-shadow: 
+        0 0 50px 20px rgba(255, 255, 255, 0.8),
+        0 0 100px 40px rgba(200, 100, 255, 0.5),
+        0 0 150px 80px rgba(100, 50, 200, 0.3);
+}
+
+.cosmic-message {
+    position: absolute;
+    top: 70%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    opacity: 0;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 1),
+        0 0 20px rgba(200, 100, 255, 0.8),
+        0 0 30px rgba(100, 50, 200, 0.6);
+    letter-spacing: 2px;
+    animation: message-fade 4s ease forwards;
+}
+
+/* Success and Error Messages */
+.action-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    z-index: 9000;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.action-message.success {
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+}
+
+.action-message.error {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+
+.action-message.active {
+    transform: translateX(0);
+}
+
+.action-message i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Animations */
+@keyframes spiral-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes cosmic-fly {
+    from {
+        transform: translateZ(1000px);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    to {
+        transform: translateZ(-1000px);
+        opacity: 0;
+    }
+}
+
+@keyframes spaceship-enter {
+    0% {
+        transform: translate(-50%, -300%) scale(0.2);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.6);
+    }
+    65% {
+        transform: translate(-50%, -50%) scale(0.6);
+    }
+    100% {
+        transform: translate(-50%, 300%) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes portal-grow {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+    40% {
+        width: 50px;
+        height: 50px;
+        opacity: 0.7;
+    }
+    60% {
+        width: 100px;
+        height: 100px;
+        opacity: 1;
+    }
+    100% {
+        width: 500vw;
+        height: 500vw;
+        opacity: 1;
+    }
+}
+
+@keyframes flame-flicker {
+    from {
+        height: 25px;
+        opacity: 0.8;
+    }
+    to {
+        height: 20px;
+        opacity: 1;
+    }
+}
+
+@keyframes rainbow-shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes message-fade {
+    0%, 20% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    40%, 80% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .galaxy-loader {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .galaxy-spiral {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+        margin-left: -50px;
+    }
+    
+    .loader-message, .circular-loader-message {
+        font-size: 1rem;
+    }
+    
+    .spaceship {
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    
+    .cosmic-message {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .galaxy-loader {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .galaxy-spiral {
+        width: 80px;
+        height: 80px;
+        margin-top: -40px;
+        margin-left: -40px;
+    }
+    
+    .loader-message, .circular-loader-message {
+        font-size: 0.9rem;
+    }
+    
+    .spaceship {
+        transform: translate(-50%, -50%) scale(0.4);
+    }
+    
+    .cosmic-message {
+        font-size: 1.2rem;
+    }
+} 

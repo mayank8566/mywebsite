@@ -1,0 +1,18 @@
+[Unit]
+Description=CosmicTeams Web Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/cosmic_teams
+Environment="PATH=/opt/cosmic_teams/venv/bin"
+ExecStart=/opt/cosmic_teams/venv/bin/gunicorn --config gunicorn_config.py wsgi:app
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=cosmic_teams
+
+[Install]
+WantedBy=multi-user.target 

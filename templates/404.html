@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | CoolWeb</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .error-code::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background-color: rgba(74, 108, 247, 0.2);
+            bottom: 15px;
+            left: 0;
+            z-index: -1;
+            border-radius: 5px;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .home-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .home-btn:hover {
+            background-color: #3a5bd9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(74, 108, 247, 0.3);
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(74, 108, 247, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .error-illustration {
+            max-width: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @media screen and (max-width: 576px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>CoolWeb</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('index') }}#features">Features</a></li>
+                <li><a href="{{ url_for('index') }}#about">About</a></li>
+                <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{{ url_for('login') }}" class="login-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+        </div>
+    </header>
+
+    <main>
+        <div class="error-container">
+            <div class="error-illustration floating">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+                    <style>
+                        .st0{fill:#F5F7FA;}
+                        .st1{fill:#4A6CF7;}
+                        .st2{fill:#6A11CB;}
+                        .st3{fill:#FFFFFF;}
+                        .st4{fill:#E4E8F0;}
+                    </style>
+                    
+                    <!-- Background -->
+                    <rect class="st0" width="500" height="500" rx="20" ry="20"/>
+                    
+                    <!-- 404 Text -->
+                    <path class="st1" d="M150,200 L150,300 L180,300 L180,260 L220,260 L220,300 L250,300 L250,200 L220,200 L220,230 L180,230 L180,200 Z" opacity="0.2"/>
+                    <path class="st1" d="M270,200 C270,200 270,300 270,300 C270,300 350,300 350,300 C350,300 350,270 350,270 C350,270 300,270 300,270 C300,270 300,260 300,260 C300,260 340,260 340,260 C340,260 340,230 340,230 C340,230 300,230 300,230 C300,230 300,220 300,220 C300,220 350,220 350,220 C350,220 350,200 350,200 C350,200 270,200 270,200 Z" opacity="0.2"/>
+                    <circle class="st1" cx="380" cy="250" r="50" opacity="0.2"/>
+                    
+                    <!-- Character -->
+                    <g transform="translate(250, 350)">
+                        <circle class="st2" cx="0" cy="0" r="40" opacity="0.7"/>
+                        <circle class="st3" cx="-15" cy="-10" r="8"/>
+                        <circle class="st3" cx="15" cy="-10" r="8"/>
+                        <path d="M-20,15 Q0,0 20,15" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+                    </g>
+                    
+                    <!-- Decorative elements -->
+                    <circle class="st1" cx="100" cy="100" r="20" opacity="0.3"/>
+                    <circle class="st2" cx="400" cy="400" r="25" opacity="0.2"/>
+                    <circle class="st1" cx="400" cy="150" r="15" opacity="0.2"/>
+                    <circle class="st2" cx="100" cy="400" r="10" opacity="0.3"/>
+                </svg>
+            </div>
+            
+            <h1 class="error-code">404</h1>
+            <h2 class="error-title">Page Not Found</h2>
+            <p class="error-message">Oops! The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+            
+            <div class="error-actions">
+                <a href="{{ url_for('index') }}" class="home-btn">Go to Homepage</a>
+                <a href="javascript:history.back()" class="back-btn">Go Back</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>CoolWeb</h2>
+                <p>Your awesome web experience</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('index') }}#features">Features</a></li>
+                    <li><a href="{{ url_for('index') }}#about">About</a></li>
+                    <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CoolWeb. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

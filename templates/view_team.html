@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ team.name }} - Team Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .team-details-main {
+            padding: 40px 0;
+        }
+        
+        .team-details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .team-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--primary-color);
+            transform: translateX(-3px);
+        }
+        
+        .team-overview {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-header {
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-logo-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(111, 66, 193, 0.5);
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.4);
+        }
+        
+        .team-logo-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .default-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .default-logo i {
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .team-details {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .team-name {
+            color: var(--header-color);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            text-shadow: 0 0 15px rgba(111, 66, 193, 0.6);
+        }
+        
+        .team-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .team-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .stat-item i {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+        
+        .team-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .inline-form {
+            display: inline;
+        }
+        
+        .members-section {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            color: var(--header-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
+        }
+        
+        .members-list {
+            padding: 20px 30px;
+        }
+        
+        .member-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .member-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .member-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(111, 66, 193, 0.3);
+        }
+        
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .member-avatar i {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .member-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin: 0 0 5px 0;
+        }
+        
+        .member-role {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+        }
+        
+        .leader-badge {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            color: #2c3e50;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .co-leader-badge {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            color: #2c3e50;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .member-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .team-info-section {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .info-content {
+            padding: 20px 30px;
+        }
+        
+        .info-group {
+            margin-bottom: 20px;
+        }
+        
+        .info-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-group h3 {
+            color: var(--header-color);
+            font-size: 1.2rem;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .info-group p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .info-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-list li i {
+            color: var(--accent-color);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .info-value {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .empty-message {
+            padding: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .empty-message i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: rgba(111, 66, 193, 0.4);
+        }
+        
+        .rules-content {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Button styles */
+        .cosmic-btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .cosmic-btn.primary {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+        }
+        
+        .cosmic-btn.primary:hover {
+            background: linear-gradient(135deg, #8e44ad, #6f42c1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
+        }
+        
+        .cosmic-btn.success {
+            background: linear-gradient(135deg, #00c9ff, #92fe9d);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(0, 201, 255, 0.3);
+        }
+        
+        .cosmic-btn.success:hover {
+            background: linear-gradient(135deg, #92fe9d, #00c9ff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 201, 255, 0.4);
+        }
+        
+        .cosmic-btn.danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+        }
+        
+        .cosmic-btn.danger:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.4);
+        }
+        
+        .cosmic-btn.warning {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(246, 211, 101, 0.3);
+        }
+        
+        .cosmic-btn.warning:hover {
+            background: linear-gradient(135deg, #fda085, #f6d365);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(246, 211, 101, 0.4);
+        }
+        
+        .kick-btn {
+            color: #ff416c;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .kick-btn:hover {
+            color: #ff4b2b;
+            transform: scale(1.1);
+        }
+        
+        .promote-btn {
+            color: #00c9ff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .promote-btn:hover {
+            color: #14b8eb;
+            transform: scale(1.1);
+        }
+        
+        .member-link {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .member-link:hover {
+            color: #6f42c1;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}" class="active">Teams</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="team-details-main">
+        <div class="team-details-container">
+            <div class="team-details-header">
+                <h1>Team Details</h1>
+                <a href="{{ url_for('teams') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Teams
+                </a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="team-overview">
+                <div class="team-header">
+                    <div class="team-logo-large">
+                        {% if team.logo %}
+                        <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                        {% else %}
+                        <div class="default-logo">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="team-details">
+                        <h2 class="team-name">{{ team.name }}</h2>
+                        <p class="team-description">{{ team.description }}</p>
+                        
+                        <div class="team-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-trophy"></i>
+                                <span>{{ team.points }} points</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-user-friends"></i>
+                                <span>{{ members|length }} members</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Created: {{ team.created_at.split(' ')[0] }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="team-actions">
+                            {% if is_leader %}
+                            <a href="{{ url_for('search_users_for_team', team_id=team.id) }}" class="cosmic-btn success">
+                                <i class="fas fa-user-plus"></i> Invite Members
+                            </a>
+                            <a href="{{ url_for('team_settings', team_id=team.id) }}" class="cosmic-btn primary">
+                                <i class="fas fa-cog"></i> Team Settings
+                            </a>
+                            <form action="{{ url_for('disband_team', team_id=team.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn danger" onclick="return confirm('Are you sure you want to disband this team? All members will be removed and the team will be deleted. This action cannot be undone.')">
+                                    <i class="fas fa-trash-alt"></i> Disband Team
+                                </button>
+                            </form>
+                            {% elif is_admin %}
+                            <a href="{{ url_for('search_users_for_team', team_id=team.id) }}" class="cosmic-btn success">
+                                <i class="fas fa-user-plus"></i> Invite Members
+                            </a>
+                            <a href="{{ url_for('team_settings', team_id=team.id) }}" class="cosmic-btn primary">
+                                <i class="fas fa-cog"></i> Team Settings
+                            </a>
+                            <form action="{{ url_for('delete_team', team_id=team.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn danger" onclick="return confirm('Are you sure you want to delete this team? This action cannot be undone.')">
+                                    <i class="fas fa-trash-alt"></i> Delete Team
+                                </button>
+                            </form>
+                            {% elif is_member %}
+                            <form action="{{ url_for('leave_team', team_id=team.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn warning" onclick="return confirm('Are you sure you want to leave this team?')">
+                                    <i class="fas fa-sign-out-alt"></i> Leave Team
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="members-section">
+                <div class="section-header">
+                    <h2>Team Members</h2>
+                    <span>{{ members|length }} {% if members|length == 1 %}member{% else %}members{% endif %}</span>
+                </div>
+                <div class="members-list">
+                    {% if members %}
+                        {% for member in members %}
+                            <div class="member-card">
+                                <div class="member-info">
+                                    <div class="member-avatar">
+                                        {% if member.profile_pic %}
+                                        <img src="{{ url_for('static', filename=member.profile_pic) }}" alt="{{ member.username }}'s avatar">
+                                        {% else %}
+                                        <i class="fas fa-user"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h3 class="member-name">
+                                            <a href="{{ url_for('view_user', user_id=member.id) }}" class="member-link">
+                                                {{ member.username }}
+                                                {% if member.is_leader %}
+                                                <span class="leader-badge"><i class="fas fa-crown"></i> Leader</span>
+                                                {% elif member.role == 'co-leader' %}
+                                                <span class="co-leader-badge"><i class="fas fa-star"></i> Co-Leader</span>
+                                                {% endif %}
+                                            </a>
+                                        </h3>
+                                        <p class="member-role">{% if member.full_name %}{{ member.full_name }}{% else %}Member{% endif %}</p>
+                                    </div>
+                                </div>
+                                {% if is_leader and not member.is_leader and session.get('user_id') != member.id %}
+                                <div class="member-actions">
+                                    <form action="{{ url_for('promote_member', team_id=team.id, user_id=member.id) }}" method="post" class="inline-form">
+                                        <button type="submit" class="promote-btn" title="{{ 'Demote to Member' if member.role == 'co-leader' else 'Promote to Co-Leader' }}">
+                                            <i class="{{ 'fas fa-level-down-alt' if member.role == 'co-leader' else 'fas fa-level-up-alt' }}"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('kick_team_member', team_id=team.id, user_id=member.id) }}" method="post" onsubmit="return confirm('Are you sure you want to kick {{ member.username }} from the team?');">
+                                        <button type="submit" class="kick-btn" title="Kick from team">
+                                            <i class="fas fa-user-slash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-message">
+                            <i class="fas fa-users-slash"></i>
+                            <p>No members in this team yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if team.rules %}
+            <div class="team-info-section">
+                <div class="section-header">
+                    <h2>Team Rules</h2>
+                </div>
+                <div class="info-content">
+                    <div class="rules-content">
+                        {{ team.rules|nl2br|safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="team-info-section">
+                <div class="section-header">
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        {% if team.email %}
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span class="info-value">{{ team.email }}</span>
+                        </li>
+                        {% endif %}
+                        {% if team.discord %}
+                        <li>
+                            <i class="fab fa-discord"></i>
+                            <span class="info-value">{{ team.discord }}</span>
+                        </li>
+                        {% endif %}
+                        {% if team.website %}
+                        <li>
+                            <i class="fas fa-globe"></i>
+                            <span class="info-value">
+                                <a href="{{ team.website }}" target="_blank" rel="noopener noreferrer">{{ team.website }}</a>
+                            </span>
+                        </li>
+                        {% endif %}
+                        {% if not team.email and not team.discord and not team.website %}
+                        <div class="empty-message">
+                            <p>No contact information available</p>
+                        </div>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/galaxy.js') }}"></script>
+</body>
+</html> 

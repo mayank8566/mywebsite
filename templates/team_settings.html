@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Settings - {{ team.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .settings-main {
+            padding: 40px 0;
+        }
+        
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--primary-color);
+            transform: translateX(-3px);
+        }
+        
+        .settings-form {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .form-section h2 {
+            color: var(--header-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+            text-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--header-color);
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.3);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .file-input {
+            padding: 10px 0;
+        }
+        
+        .logo-preview-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(111, 66, 193, 0.3);
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.3);
+        }
+        
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .logo-preview i {
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .points-input {
+            width: 120px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+            background: rgba(111, 66, 193, 0.2);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.3);
+        }
+        
+        .points-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points-badge {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(111, 66, 193, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .current-points {
+            font-size: 1.1rem;
+            margin-left: 15px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .points-note {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .points-note i {
+            color: var(--accent-color);
+        }
+        
+        .points-note span {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="settings-main">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h1>Team Settings</h1>
+                <a href="{{ url_for('view_team', team_id=team.id) }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Team
+                </a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form action="{{ url_for('team_settings', team_id=team.id) }}" method="post" enctype="multipart/form-data" class="settings-form">
+                <div class="form-section">
+                    <h2>Team Information</h2>
+                    <div class="form-group">
+                        <label for="team_name">Team Name</label>
+                        <input type="text" id="team_name" name="team_name" class="form-control" value="{{ team.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Team Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="5" required>{{ team.description }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="team_logo">Team Logo</label>
+                        <input type="file" id="team_logo" name="team_logo" class="file-input" accept="image/*">
+                        <span class="form-text">Recommended size: 200x200 pixels. Maximum file size: 2MB.</span>
+                        <div class="logo-preview-container">
+                            <div class="logo-preview">
+                                {% if team.logo %}
+                                <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                                {% else %}
+                                <i class="fas fa-users"></i>
+                                {% endif %}
+                            </div>
+                            <span class="form-text">Current logo</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Team Points</h2>
+                    <div class="form-group">
+                        <label for="team_points">Team Points</label>
+                        <div class="points-container">
+                            <div class="points-badge">
+                                <i class="fas fa-trophy"></i>
+                                <span>Current: {{ team.points }}</span>
+                            </div>
+                            <input type="number" id="team_points" name="team_points" class="form-control points-input" value="{{ team.points }}" min="0">
+                        </div>
+                        <span class="form-text">Set the team's points manually. These points affect the team's ranking on the leaderboard.</span>
+                        <div class="points-note">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Important: Please enter accurate, real points only. Falsifying points is against our community guidelines and may result in team penalties.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Contact Information</h2>
+                    <div class="form-group">
+                        <label for="team_email">Team Email</label>
+                        <input type="email" id="team_email" name="team_email" class="form-control" value="{{ team.email }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="team_discord">Discord Server</label>
+                        <input type="text" id="team_discord" name="team_discord" class="form-control" value="{{ team.discord }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="team_website">Team Website</label>
+                        <input type="url" id="team_website" name="team_website" class="form-control" value="{{ team.website }}">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Team Rules</h2>
+                    <div class="form-group">
+                        <label for="team_rules">Team Rules & Guidelines</label>
+                        <textarea id="team_rules" name="team_rules" class="form-control" rows="8">{{ team.rules }}</textarea>
+                        <span class="form-text">Define rules and guidelines for your team members.</span>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="cosmic-btn glow">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="cosmic-btn outline">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/galaxy.js') }}"></script>
+</body>
+</html> 

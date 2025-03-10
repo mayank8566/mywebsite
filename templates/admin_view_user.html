@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View User - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .banned-badge {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        
+        .admin-actions {
+            margin-top: 30px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .cosmic-btn.danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+        
+        .cosmic-btn.danger:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+        }
+        
+        .section-divider {
+            margin: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-management-section h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .team-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .team-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--accent-color);
+        }
+        
+        .team-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('admin_dashboard') }}" class="active">Admin</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <div class="user-profile">
+                <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ session.get('username') }}</span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                    <a href="{{ url_for('mail_inbox') }}">
+                        <i class="fas fa-envelope"></i> Mail
+                        {% if unread_mail_count > 0 %}
+                        <span class="mail-badge">{{ unread_mail_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>User Details</h1>
+                <a href="{{ url_for('admin_dashboard') }}" class="cosmic-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="user-details-card">
+                <div class="user-header">
+                    <h2>{{ user.username }}
+                    {% if user.is_admin %}
+                        <span class="admin-badge">Admin</span>
+                    {% endif %}
+                    {% if user.is_banned == 1 %}
+                        <span class="banned-badge">Banned</span>
+                    {% endif %}
+                    </h2>
+                    <p>{{ user.email }}</p>
+                </div>
+                
+                <div class="user-details-content">
+                    <div class="user-info-section">
+                        <h3>User Information</h3>
+                        <div class="details-list">
+                            <div class="detail-item">
+                                <i class="fas fa-id-card"></i>
+                                <span>ID: {{ user.id }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user"></i>
+                                <span>{{ user.full_name if user.full_name else 'No name provided' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Joined: {{ user.created_at }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ user.location if user.location else 'No location provided' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-globe"></i>
+                                <span>{{ user.website if user.website else 'No website provided' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-actions">
+                    <div class="action-buttons">
+                        {% if session.get('user_id') != user.id %}
+                            <form action="{{ url_for('admin_toggle_admin', user_id=user.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn {% if user.is_admin %}danger{% else %}success{% endif %}" onclick="return confirm('Are you sure you want to {% if user.is_admin %}remove admin privileges from{% else %}make{% endif %} {{ user.username }} {% if not user.is_admin %}an admin{% endif %}?')">
+                                    <i class="fas {% if user.is_admin %}fa-user-times{% else %}fa-user-shield{% endif %}"></i>
+                                    {% if user.is_admin %}Remove Admin{% else %}Make Admin{% endif %}
+                                </button>
+                            </form>
+                            
+                            <form action="{{ url_for('admin_toggle_team_creation', user_id=user.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn {% if user.can_create_team %}warning{% else %}success{% endif %}" onclick="return confirm('Are you sure you want to {% if user.can_create_team %}revoke{% else %}grant{% endif %} team creation permission for {{ user.username }}?')">
+                                    <i class="fas {% if user.can_create_team %}fa-users-slash{% else %}fa-users-cog{% endif %}"></i>
+                                    {% if user.can_create_team %}Revoke Team Creation{% else %}Grant Team Creation{% endif %}
+                                </button>
+                            </form>
+                            
+                            <form action="{{ url_for('admin_toggle_ban', user_id=user.id) }}" method="post" class="inline-form">
+                                {% if user.is_banned != 1 %}
+                                <div class="ban-reason-container" style="margin-bottom: 10px;">
+                                    <input type="text" name="ban_reason" placeholder="Reason for ban" class="form-control" required style="width: 300px; margin-bottom: 10px; padding: 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                                </div>
+                                {% endif %}
+                                <button type="submit" class="cosmic-btn {% if user.is_banned == 1 %}success{% else %}danger{% endif %}" onclick="return confirm('Are you sure you want to {% if user.is_banned == 1 %}unban{% else %}ban{% endif %} {{ user.username }}?')">
+                                    <i class="fas {% if user.is_banned == 1 %}fa-user-check{% else %}fa-user-slash{% endif %}"></i>
+                                    {% if user.is_banned == 1 %}Unban User{% else %}Ban User{% endif %}
+                                </button>
+                            </form>
+                            
+                            {% if user.is_banned == 1 and user.ban_reason %}
+                            <div class="ban-reason-display" style="margin-top: 10px; padding: 10px; background: rgba(255, 65, 108, 0.1); border-radius: 8px; border: 1px solid rgba(255, 65, 108, 0.3);">
+                                <strong style="color: #ff6b6b;">Ban Reason:</strong> {{ user.ban_reason }}
+                            </div>
+                            {% endif %}
+                            
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="post" class="inline-form">
+                                <button type="submit" class="cosmic-btn danger" onclick="return confirm('Are you sure you want to delete user {{ user.username }}? This action cannot be undone.')">
+                                    <i class="fas fa-trash-alt"></i> Delete User
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="self-warning">You cannot modify your own account from here.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            {% if session.get('user_id') != user.id %}
+            <div class="team-management-section">
+                <h2>Team Management</h2>
+                <p class="section-description">Manage this user's team memberships and leadership roles.</p>
+                
+                {% if user_teams %}
+                    <h3>User's Teams</h3>
+                    <div class="team-list">
+                        {% for team in user_teams %}
+                        <div class="team-card">
+                            <h4>{{ team.name }}</h4>
+                            <p>{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                            <div class="team-actions">
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="cosmic-btn">
+                                    <i class="fas fa-eye"></i> View Team
+                                </a>
+                                <form action="{{ url_for('delete_team', team_id=team.id) }}" method="post" class="inline-form">
+                                    <button type="submit" class="cosmic-btn danger" onclick="return confirm('Are you sure you want to delete team {{ team.name }}? This action cannot be undone.')">
+                                        <i class="fas fa-trash-alt"></i> Delete Team
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>This user is not a member of any teams.</p>
+                {% endif %}
+                
+                {% if all_teams %}
+                    <h3>All Teams</h3>
+                    <div class="team-list">
+                        {% for team in all_teams %}
+                        <div class="team-card">
+                            <h4>{{ team.name }}</h4>
+                            <p>{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                            <div class="team-actions">
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="cosmic-btn">
+                                    <i class="fas fa-eye"></i> View Team
+                                </a>
+                                <form action="{{ url_for('admin_make_team_leader', user_id=user.id, team_id=team.id) }}" method="post" class="inline-form">
+                                    <button type="submit" class="cosmic-btn success" onclick="return confirm('Are you sure you want to make {{ user.username }} the leader of {{ team.name }}?')">
+                                        <i class="fas fa-crown"></i> Make Leader
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/galaxy.js') }}"></script>
+</body>
+</html> 

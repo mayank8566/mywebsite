@@ -1,0 +1,587 @@
+/* Profile Page Styles */
+:root {
+    --primary-color: #4a6cf7;
+    --secondary-color: #6c757d;
+    --accent-color: #ff6b6b;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --background-color: #f8f9fa;
+    --card-bg-color: #ffffff;
+    --text-color: #212529;
+    --light-color: #ffffff;
+    --dark-color: #343a40;
+    --border-color: #e9ecef;
+    --transition: all 0.3s ease;
+    --border-radius: 8px;
+    --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Active Navigation Link */
+nav ul li a.active {
+    color: var(--primary-color);
+}
+
+nav ul li a.active::after {
+    width: 100%;
+}
+
+/* Profile Layout */
+.profile-main {
+    background-color: var(--background-color);
+    min-height: calc(100vh - 70px);
+    padding: 2rem 0;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+/* Profile Sidebar */
+.profile-sidebar {
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.profile-avatar {
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #4a6cf7, #6a11cb);
+    color: var(--light-color);
+}
+
+.avatar-image {
+    width: 120px;
+    height: 120px;
+    background-color: var(--light-color);
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+.avatar-image i {
+    font-size: 4rem;
+    color: var(--primary-color);
+}
+
+.avatar-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-avatar h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-avatar p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+}
+
+.upload-avatar-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--light-color);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.upload-avatar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.upload-avatar-btn i {
+    margin-right: 0.5rem;
+}
+
+.profile-menu {
+    padding: 1rem 0;
+}
+
+.profile-menu a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--text-color);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.profile-menu a i {
+    margin-right: 0.8rem;
+    width: 20px;
+    text-align: center;
+    color: var(--secondary-color);
+}
+
+.profile-menu a:hover,
+.profile-menu a.active {
+    background-color: rgba(74, 108, 247, 0.1);
+    color: var(--primary-color);
+}
+
+.profile-menu a:hover i,
+.profile-menu a.active i {
+    color: var(--primary-color);
+}
+
+/* Profile Content */
+.profile-content {
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 2rem;
+}
+
+.profile-section {
+    margin-bottom: 3rem;
+}
+
+.profile-section:last-child {
+    margin-bottom: 0;
+}
+
+.profile-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.section-description {
+    color: var(--secondary-color);
+    margin-bottom: 2rem;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+}
+
+.success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: var(--info-color);
+    border: 1px solid var(--info-color);
+}
+
+/* Form Styles */
+.profile-form {
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+.form-help {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.save-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.save-btn:hover {
+    background-color: #3a5bd9;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(74, 108, 247, 0.2);
+}
+
+.cancel-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cancel-btn:hover {
+    background-color: var(--border-color);
+}
+
+/* Custom File Input */
+input[type="file"] {
+    padding: 0.6rem;
+}
+
+input[type="file"]::file-selector-button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    border: none;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: var(--transition);
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #3a5bd9;
+}
+
+/* Toggle Switch */
+.toggle-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toggle-option:last-child {
+    border-bottom: none;
+}
+
+.toggle-info h4 {
+    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+}
+
+.toggle-info p {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: var(--transition);
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: var(--transition);
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* Security Options */
+.security-options,
+.notification-options,
+.privacy-options {
+    margin-top: 2rem;
+}
+
+.security-options h3,
+.notification-options h3,
+.privacy-options h3 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+/* Danger Zone */
+.danger-zone {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    border: 1px solid var(--danger-color);
+    border-radius: var(--border-radius);
+}
+
+.danger-zone h3 {
+    color: var(--danger-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+.danger-zone p {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.danger-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.danger-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.danger-btn:hover {
+    background-color: var(--danger-color);
+    color: var(--light-color);
+}
+
+/* Minecraft Tiers Section */
+.minecraft-tiers-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tier-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.tier-category {
+    background-color: #f5f5f5;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tier-category h3 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: var(--dark-color);
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+}
+
+.tier-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tier-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tier-option {
+    cursor: pointer;
+}
+
+.tier-option input[type="radio"] {
+    display: none;
+}
+
+.tier-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.tier-s {
+    background-color: #FF5252;
+}
+
+.tier-a {
+    background-color: #FF9800;
+}
+
+.tier-b {
+    background-color: #FFEB3B;
+    color: #333;
+}
+
+.tier-c {
+    background-color: #4CAF50;
+}
+
+.tier-d {
+    background-color: #2196F3;
+}
+
+.tier-option input[type="radio"]:checked + .tier-label {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border: 2px solid #333;
+}
+
+.tier-notes {
+    margin-top: 0.5rem;
+}
+
+.tier-notes input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+.tier-notes input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Add a menu item for Minecraft Tiers */
+.profile-menu a[href="#minecraft-tiers"] i {
+    color: #5bac1f;
+}
+
+/* Media Queries for Tiers */
+@media screen and (max-width: 768px) {
+    .tier-options {
+        justify-content: center;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .tier-selection {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .tier-options {
+        flex: 0 0 auto;
+    }
+    
+    .tier-notes {
+        flex: 1;
+        margin-top: 0;
+        margin-left: 1rem;
+    }
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 992px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+        margin-bottom: 2rem;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .profile-content {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .danger-actions {
+        flex-direction: column;
+    }
+} 

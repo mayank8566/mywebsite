@@ -1,0 +1,889 @@
+/* Teams Page Styles */
+.teams-main {
+    background-color: var(--minecraft-black);
+    min-height: calc(100vh - 70px);
+    padding: 2rem 0;
+}
+
+.teams-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.teams-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.teams-header h1 {
+    color: var(--minecraft-green);
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 0 var(--minecraft-dark-gray);
+}
+
+.user-team-section, .all-teams-section {
+    margin-bottom: 3rem;
+}
+
+.user-team-section h2, .all-teams-section h2 {
+    color: var(--light-color);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid var(--minecraft-green);
+    padding-bottom: 0.5rem;
+}
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.team-card {
+    background-color: var(--minecraft-dark-gray);
+    border: 3px solid var(--minecraft-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--minecraft-green);
+}
+
+.user-team {
+    background-color: rgba(91, 172, 31, 0.1);
+    border-color: var(--minecraft-green);
+}
+
+.team-logo {
+    width: 80px;
+    height: 80px;
+    background-color: var(--minecraft-gray);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.default-logo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--minecraft-dark-gray);
+}
+
+.default-logo i {
+    font-size: 2.5rem;
+    color: var(--minecraft-green);
+}
+
+.team-info {
+    flex: 1;
+}
+
+.team-info h3 {
+    color: var(--light-color);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-description {
+    color: var(--light-color);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.team-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.team-points, .team-members, .team-leader {
+    display: flex;
+    align-items: center;
+    color: var(--light-color);
+    font-size: 0.9rem;
+}
+
+.team-points i, .team-members i, .team-leader i {
+    margin-right: 0.5rem;
+    color: var(--minecraft-green);
+}
+
+.team-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.no-teams {
+    background-color: var(--minecraft-dark-gray);
+    border: 3px solid var(--minecraft-gray);
+    border-radius: 8px;
+    padding: 3rem;
+    text-align: center;
+    color: var(--light-color);
+}
+
+/* Team Details Page */
+.team-details-main {
+    background-color: var(--minecraft-black);
+    min-height: calc(100vh - 70px);
+    padding: 2rem 0;
+}
+
+.team-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.team-details-header {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--light-color);
+    margin-bottom: 1rem;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: var(--minecraft-green);
+}
+
+.team-details-header h1 {
+    color: var(--minecraft-green);
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 0 var(--minecraft-dark-gray);
+}
+
+.team-details-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.team-info-card {
+    background-color: var(--minecraft-dark-gray);
+    border: 3px solid var(--minecraft-gray);
+    border-radius: 8px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.team-logo-large {
+    width: 120px;
+    height: 120px;
+    background-color: var(--minecraft-gray);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-logo-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-details h2 {
+    color: var(--light-color);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.team-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    color: var(--light-color);
+}
+
+.stat-item i {
+    margin-right: 0.5rem;
+    color: var(--minecraft-green);
+    font-size: 1.2rem;
+}
+
+.team-members-section {
+    background-color: var(--minecraft-dark-gray);
+    border: 3px solid var(--minecraft-gray);
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.team-members-section h2 {
+    color: var(--light-color);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid var(--minecraft-green);
+    padding-bottom: 0.5rem;
+}
+
+.members-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.member-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.member-card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.member-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1rem;
+    background-color: var(--minecraft-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-avatar i {
+    font-size: 1.5rem;
+    color: var(--light-color);
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-info h3 {
+    color: var(--light-color);
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.member-info p {
+    color: var(--light-color);
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.leader-badge {
+    display: inline-block;
+    background-color: var(--minecraft-green);
+    color: var(--light-color);
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.leader-badge i {
+    margin-right: 0.3rem;
+}
+
+.member-actions {
+    margin-left: auto;
+}
+
+.inline-form {
+    display: inline-block;
+}
+
+.minecraft-btn.small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+.minecraft-btn.red {
+    background-color: #c0392b;
+    border-color: #922b21;
+}
+
+/* Media Queries */
+@media screen and (min-width: 768px) {
+    .team-info-card {
+        flex-direction: row;
+    }
+    
+    .team-logo-large {
+        margin-right: 2rem;
+        margin-bottom: 0;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .teams-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .team-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .team-actions .minecraft-btn {
+        width: 100%;
+    }
+}
+
+/* Teams CSS */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.team-details-main {
+    padding: 50px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.team-details-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.team-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.team-card {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 30px;
+}
+
+.team-header {
+    padding: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.team-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-logo i {
+    font-size: 50px;
+    color: #fff;
+}
+
+.team-info {
+    flex: 1;
+}
+
+.team-name {
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-size: 2rem;
+}
+
+.team-meta {
+    display: flex;
+    gap: 20px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.team-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.team-content {
+    padding: 30px;
+}
+
+.team-description {
+    color: #ddd;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.team-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.invite-btn, .edit-btn, .leave-btn, .delete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+.invite-btn {
+    background-color: #4CAF50;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+}
+
+.leave-btn {
+    background-color: #FF9800;
+}
+
+.delete-btn {
+    background-color: #F44336;
+}
+
+.invite-btn:hover {
+    background-color: #3e8e41;
+}
+
+.edit-btn:hover {
+    background-color: #0b7dda;
+}
+
+.leave-btn:hover {
+    background-color: #e68900;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.leave-form, .delete-form {
+    display: inline;
+}
+
+.team-members {
+    margin-top: 40px;
+}
+
+.team-members h2 {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.members-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.member-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.member-header {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.member-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-avatar i {
+    font-size: 24px;
+    color: #fff;
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-info h3 {
+    margin: 0 0 5px 0;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.member-role {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.member-role.leader {
+    background-color: #FF9800;
+    color: #000;
+}
+
+.member-role.member {
+    background-color: #2196F3;
+    color: #fff;
+}
+
+.member-actions {
+    padding: 15px;
+    text-align: center;
+}
+
+.remove-btn {
+    width: 100%;
+    padding: 8px 0;
+    background-color: #F44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.remove-btn:hover {
+    background-color: #d32f2f;
+}
+
+.no-members {
+    text-align: center;
+    padding: 30px;
+    color: #aaa;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.create-team-form {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.minecraft-input {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+}
+
+.minecraft-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.file-input {
+    padding: 10px 0;
+}
+
+.logo-preview-container {
+    margin-top: 15px;
+}
+
+.logo-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.logo-preview i {
+    font-size: 40px;
+    color: #fff;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* Teams listing page */
+.teams-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.teams-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.team-item {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.team-item-header {
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-item-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.team-item-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-item-logo i {
+    font-size: 30px;
+    color: #fff;
+}
+
+.team-item-name {
+    margin: 0;
+    color: #fff;
+    font-size: 1.3rem;
+}
+
+.team-item-content {
+    padding: 20px;
+}
+
+.team-item-description {
+    color: #ddd;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.team-item-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #aaa;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+}
+
+.team-item-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.team-item-footer {
+    padding: 15px 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.view-team-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.view-team-btn:hover {
+    background-color: #3e8e41;
+}
+
+.no-teams {
+    text-align: center;
+    padding: 50px 0;
+    color: #aaa;
+}
+
+.no-teams i {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.no-teams p {
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .team-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    
+    .team-actions {
+        flex-direction: column;
+    }
+    
+    .teams-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .members-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+} 
