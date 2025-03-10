@@ -59,6 +59,18 @@ The Admin Dashboard includes a Database Management section where you can:
 - Create database backups
 - Restore the database from backups
 
+### Recent Database Schema Changes
+
+The application has been updated to handle team leadership differently:
+- Previously, the teams table had a `leader_id` column
+- Now, leadership is determined by the `is_leader` flag in the team_members table
+- This change makes the database structure more flexible and avoids schema issues
+
+If you're experiencing database errors after deployment:
+1. Make sure you're using the latest code
+2. Try initializing a fresh database (Admin > Reinitialize Database)
+3. If you have a backup from before these changes, you may need to create a new database and manually recreate your data
+
 ## Local Development
 
 To run the application locally:

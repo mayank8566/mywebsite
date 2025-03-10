@@ -10,210 +10,402 @@
 </head>
 <body class="galaxy-theme">
     
-    <header class="cosmic-header">
-        <div class="logo">
-            <h1>Cosmic<span>Teams</span></h1>
+    <!-- Apology Popup -->
+    <div id="apologyPopup" class="apology-popup">
+        <div class="apology-content">
+            <div class="apology-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Important Notice</h2>
+                <span class="close-popup" onclick="closeApologyPopup()">&times;</span>
+            </div>
+            <div class="apology-body">
+                <p>Dear Cosmic Teams Users,</p>
+                <p>We sincerely apologize for the recent data loss that occurred in our system. Due to a technical issue during our latest update, all user accounts and team data were unfortunately reset.</p>
+                <p>This happened because of critical bugs in our database schema that needed immediate resolution to ensure the stability of the platform moving forward.</p>
+                <p>We understand how frustrating this can be, and we're taking steps to prevent similar issues in the future:</p>
+                <ul>
+                    <li>We've implemented a more robust database backup system</li>
+                    <li>We're now using a more flexible team leadership structure</li>
+                    <li>We've updated our deployment process to minimize risks</li>
+                </ul>
+                <p>Please register again to continue using Cosmic Teams. We value your participation and thank you for your understanding.</p>
+                <div class="apology-buttons">
+                    <button class="cosmic-btn primary" onclick="closeApologyPopup()">I Understand</button>
+                </div>
+            </div>
         </div>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('main') }}" class="active">Home</a></li>
-                <li><a href="{{ url_for('teams') }}">Teams</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
-                {% if session.get('is_admin') %}
-                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-        <div class="auth-buttons">
-            {% if session.get('user_id') %}
-                <div class="user-profile">
-                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
-                        <i class="fas fa-user-circle"></i>
-                        <span>{{ session.get('username') }}</span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
-                        <a href="{{ url_for('mail_inbox') }}">
-                            <i class="fas fa-envelope"></i> Mail
-                            {% if unread_mail_count > 0 %}
-                            <span class="mail-badge">{{ unread_mail_count }}</span>
-                            {% endif %}
+    </div>
+    
+    <div class="main-container">
+        <header class="cosmic-header">
+            <div class="logo">
+                <h1>Cosmic<span>Teams</span></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}" class="active">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    {% if session.get('is_admin') %}
+                    <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                {% if session.get('user_id') %}
+                    <div class="user-profile">
+                        <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ session.get('username') }}</span>
                         </a>
-                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown-menu">
+                            <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                            <a href="{{ url_for('mail_inbox') }}">
+                                <i class="fas fa-envelope"></i> Mail
+                                {% if unread_mail_count > 0 %}
+                                <span class="mail-badge">{{ unread_mail_count }}</span>
+                                {% endif %}
+                            </a>
+                            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
                     </div>
-                </div>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
-                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
-            {% endif %}
-        </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome to the <span class="highlight">Cosmic Universe</span></h1>
-                <p>Join our stellar community. Create teams, compete across the cosmos, and showcase your skills!</p>
-                {% if not session.get('user_id') %}
-                <div class="hero-buttons">
-                    <a href="{{ url_for('register') }}" class="cosmic-btn glow">Join Now</a>
-                    <a href="{{ url_for('login') }}" class="cosmic-btn outline">Login</a>
-                </div>
                 {% else %}
-                <div class="hero-buttons">
-                    <a href="{{ url_for('profile') }}" class="cosmic-btn glow">My Profile</a>
-                    <a href="{{ url_for('teams') }}" class="cosmic-btn">Browse Teams</a>
-                </div>
+                    <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                    <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
                 {% endif %}
             </div>
-        </section>
+        </header>
 
-        <section class="top-teams-section">
-            <div class="top-teams-container">
-                <h2 class="section-title">Top Teams</h2>
-                
-                {% if top_teams %}
-                <div class="teams-grid">
-                    {% for team in top_teams %}
-                    {% if loop.index <= 3 %}
-                    <!-- Special layout for top 3 teams -->
-                    <div class="team-card team-card-top-{{ loop.index }}" {% if loop.index == 1 %}style="grid-column: 2; transform: translateY(-20px);"{% elif loop.index == 2 %}style="grid-column: 1;"{% elif loop.index == 3 %}style="grid-column: 3;"{% endif %}>
-                        <div class="team-rank {% if loop.index == 1 %}first-rank{% elif loop.index == 2 %}second-rank{% elif loop.index == 3 %}third-rank{% endif %}">{{ loop.index }}</div>
-                        <div class="card-glow"></div>
-                        <div class="team-header">
-                            <div class="team-logo">
-                                {% if team.logo %}
-                                <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
-                                {% else %}
-                                <i class="fas fa-users"></i>
-                                {% endif %}
-                            </div>
-                            <h3 class="team-name">{{ team.name }}</h3>
-                        </div>
-                        <div class="team-content">
-                            <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
-                            <div class="team-stats">
-                                <div class="team-stat">
-                                    <span class="stat-value">{{ team.points }}</span>
-                                    <span class="stat-label">Points</span>
-                                </div>
-                                <div class="team-stat">
-                                    <span class="stat-value">{{ team.member_count }}</span>
-                                    <span class="stat-label">Members</span>
-                                </div>
-                                <div class="team-stat">
-                                    <span class="stat-value">{% if team.leader_name %}{{ team.leader_name[:1] | upper }}{% if team.leader_name|length > 1 %}{{ team.leader_name[1:] }}{% endif %}{% else %}-{% endif %}</span>
-                                    <span class="stat-label">Leader</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="team-footer">
-                            <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
-                        </div>
+        <main>
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>Welcome to the <span class="highlight">Cosmic Universe</span></h1>
+                    <p>Join our stellar community. Create teams, compete across the cosmos, and showcase your skills!</p>
+                    {% if not session.get('user_id') %}
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('register') }}" class="cosmic-btn glow">Join Now</a>
+                        <a href="{{ url_for('login') }}" class="cosmic-btn outline">Login</a>
                     </div>
                     {% else %}
-                    <!-- Regular layout for teams after top 3 -->
-                    <div class="team-card">
-                        <div class="team-rank">{{ loop.index }}</div>
-                        <div class="card-glow"></div>
-                        <div class="team-header">
-                            <div class="team-logo">
-                                {% if team.logo %}
-                                <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
-                                {% else %}
-                                <i class="fas fa-users"></i>
-                                {% endif %}
-                            </div>
-                            <h3 class="team-name">{{ team.name }}</h3>
-                        </div>
-                        <div class="team-content">
-                            <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
-                            <div class="team-stats">
-                                <div class="team-stat">
-                                    <span class="stat-value">{{ team.points }}</span>
-                                    <span class="stat-label">Points</span>
-                                </div>
-                                <div class="team-stat">
-                                    <span class="stat-value">{{ team.member_count }}</span>
-                                    <span class="stat-label">Members</span>
-                                </div>
-                                <div class="team-stat">
-                                    <span class="stat-value">{% if team.leader_name %}{{ team.leader_name[:1] | upper }}{% if team.leader_name|length > 1 %}{{ team.leader_name[1:] }}{% endif %}{% else %}-{% endif %}</span>
-                                    <span class="stat-label">Leader</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="team-footer">
-                            <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
-                        </div>
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('profile') }}" class="cosmic-btn glow">My Profile</a>
+                        <a href="{{ url_for('teams') }}" class="cosmic-btn">Browse Teams</a>
                     </div>
                     {% endif %}
-                    {% endfor %}
                 </div>
-                {% else %}
-                <div class="no-teams-message">
-                    <p>No teams have been created yet. Be the first to create a team!</p>
-                    {% if session.get('user_id') and (session.get('is_admin') or can_create_team) %}
-                    <a href="{{ url_for('create_team') }}" class="cosmic-btn glow">Create Team</a>
+            </section>
+
+            <section class="top-teams-section">
+                <div class="top-teams-container">
+                    <h2 class="section-title">Top Teams</h2>
+                    
+                    {% if top_teams %}
+                    <div class="teams-grid">
+                        {% for team in top_teams %}
+                        {% if loop.index <= 3 %}
+                        <!-- Special layout for top 3 teams -->
+                        <div class="team-card team-card-top-{{ loop.index }}" {% if loop.index == 1 %}style="grid-column: 2; transform: translateY(-20px);"{% elif loop.index == 2 %}style="grid-column: 1;"{% elif loop.index == 3 %}style="grid-column: 3;"{% endif %}>
+                            <div class="team-rank {% if loop.index == 1 %}first-rank{% elif loop.index == 2 %}second-rank{% elif loop.index == 3 %}third-rank{% endif %}">{{ loop.index }}</div>
+                            <div class="card-glow"></div>
+                            <div class="team-header">
+                                <div class="team-logo">
+                                    {% if team.logo %}
+                                    <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                                    {% else %}
+                                    <i class="fas fa-users"></i>
+                                    {% endif %}
+                                </div>
+                                <h3 class="team-name">{{ team.name }}</h3>
+                            </div>
+                            <div class="team-content">
+                                <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                                <div class="team-stats">
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.points }}</span>
+                                        <span class="stat-label">Points</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.member_count }}</span>
+                                        <span class="stat-label">Members</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{% if team.leader_name %}{{ team.leader_name[:1] | upper }}{% if team.leader_name|length > 1 %}{{ team.leader_name[1:] }}{% endif %}{% else %}-{% endif %}</span>
+                                        <span class="stat-label">Leader</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-footer">
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Regular layout for teams after top 3 -->
+                        <div class="team-card">
+                            <div class="team-rank">{{ loop.index }}</div>
+                            <div class="card-glow"></div>
+                            <div class="team-header">
+                                <div class="team-logo">
+                                    {% if team.logo %}
+                                    <img src="{{ url_for('static', filename=team.logo) }}" alt="{{ team.name }} logo">
+                                    {% else %}
+                                    <i class="fas fa-users"></i>
+                                    {% endif %}
+                                </div>
+                                <h3 class="team-name">{{ team.name }}</h3>
+                            </div>
+                            <div class="team-content">
+                                <p class="team-description">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                                <div class="team-stats">
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.points }}</span>
+                                        <span class="stat-label">Points</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{{ team.member_count }}</span>
+                                        <span class="stat-label">Members</span>
+                                    </div>
+                                    <div class="team-stat">
+                                        <span class="stat-value">{% if team.leader_name %}{{ team.leader_name[:1] | upper }}{% if team.leader_name|length > 1 %}{{ team.leader_name[1:] }}{% endif %}{% else %}-{% endif %}</span>
+                                        <span class="stat-label">Leader</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-footer">
+                                <a href="{{ url_for('view_team', team_id=team.id) }}" class="view-team-btn">View Team</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-teams-message">
+                        <p>No teams have been created yet. Be the first to create a team!</p>
+                        {% if session.get('user_id') and (session.get('is_admin') or can_create_team) %}
+                        <a href="{{ url_for('create_team') }}" class="cosmic-btn glow">Create Team</a>
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </div>
-                {% endif %}
-            </div>
-        </section>
+            </section>
 
-        <section class="features" id="features">
-            <h2>Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-users"></i>
-                    <h3>Team Management</h3>
-                    <p>Create and manage your teams. Invite players, assign roles, and coordinate strategies.</p>
+            <section class="features" id="features">
+                <h2>Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-users"></i>
+                        <h3>Team Management</h3>
+                        <p>Create and manage your teams. Invite players, assign roles, and coordinate strategies.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Competitions</h3>
+                        <p>Participate in regular competitions and earn points for your team. Climb the leaderboard and gain recognition.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Skill Tracking</h3>
+                        <p>Track your progress in different skills. See how you compare to other players.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>In-App Messaging</h3>
+                        <p>Communicate with team members and other players through our integrated messaging system.</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <i class="fas fa-trophy"></i>
-                    <h3>Competitions</h3>
-                    <p>Participate in regular competitions and earn points for your team. Climb the leaderboard and gain recognition.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Skill Tracking</h3>
-                    <p>Track your progress in different skills. See how you compare to other players.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-envelope"></i>
-                    <h3>In-App Messaging</h3>
-                    <p>Communicate with team members and other players through our integrated messaging system.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
 
-    <footer class="cosmic-footer">
-        <div class="footer-content">
-            <div class="footer-logo">
-                <h2>COSMIC<span>TEAMS</span></h2>
-                <p>© 2023 CosmicTeams. All rights reserved.</p>
-            </div>
-            <div class="footer-links">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="{{ url_for('main') }}">Home</a></li>
-                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
-                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                </ul>
-            </div>
-            <div class="footer-social">
-                <h3>Connect With Us</h3>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-discord"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
+        <footer class="cosmic-footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>COSMIC<span>TEAMS</span></h2>
+                    <p>© 2023 CosmicTeams. All rights reserved.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{{ url_for('main') }}">Home</a></li>
+                        <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h3>Connect With Us</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    </div>
 
     <script src="{{ url_for('static', filename='js/galaxy.js') }}"></script>
+    <style>
+    /* Apology popup styles */
+    .apology-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 1;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .apology-content {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+        border-radius: 12px;
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5), 0 0 40px rgba(76, 29, 149, 0.2);
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        backdrop-filter: blur(10px);
+        transform: scale(1) translateY(0);
+        animation: scaleIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    .apology-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    }
+    
+    .apology-header h2 {
+        color: #f8fafc;
+        margin: 0;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .apology-header h2 i {
+        color: #fbbf24;
+    }
+    
+    .close-popup {
+        font-size: 1.5rem;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+    
+    .close-popup:hover {
+        color: #f8fafc;
+    }
+    
+    .apology-body {
+        padding: 20px;
+        color: #cbd5e1;
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    .apology-body p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+    
+    .apology-body ul {
+        margin-bottom: 15px;
+        padding-left: 20px;
+    }
+    
+    .apology-body li {
+        margin-bottom: 8px;
+    }
+    
+    .apology-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .cosmic-btn.primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        font-family: 'Orbitron', sans-serif;
+    }
+    
+    .cosmic-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 10px rgba(79, 70, 229, 0.3);
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+        from { 
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+        }
+        to { 
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+    }
+    </style>
+
+    <script>
+    // Function to close the apology popup
+    function closeApologyPopup() {
+        const overlay = document.querySelector('.apology-popup');
+        const popup = document.querySelector('.apology-content');
+        
+        if (overlay && popup) {
+            // First animate the popup
+            popup.style.transform = 'scale(0.9) translateY(20px)';
+            popup.style.opacity = '0';
+            popup.style.transition = 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+            
+            // Then fade out the overlay
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.5s ease';
+                
+                // Finally remove the element
+                setTimeout(() => {
+                    overlay.remove();
+                    
+                    // Store in localStorage that the user has seen the popup
+                    localStorage.setItem('apologyPopupSeen', 'true');
+                }, 500);
+            }, 200);
+        }
+    }
+    
+    // Check if the user has already seen the popup
+    document.addEventListener('DOMContentLoaded', function() {
+        const hasSeenPopup = localStorage.getItem('apologyPopupSeen');
+        if (hasSeenPopup === 'true') {
+            const popup = document.getElementById('apologyPopup');
+            if (popup) {
+                popup.remove();
+            }
+        }
+    });
+    </script>
 </body>
 </html> 
