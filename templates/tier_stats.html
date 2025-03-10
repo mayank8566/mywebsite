@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier Statistics - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .stats-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
+        }
+        
+        .stats-panel {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-path {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .tier-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+            max-width: 150px;
+            position: relative;
+        }
+        
+        .tier-info:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            width: 20px;
+            height: 2px;
+            background: rgba(111, 66, 193, 0.5);
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .tier-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .tier-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+        
+        .stats-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover, .tab-button.active {
+            background: rgba(111, 66, 193, 0.3);
+            border-color: rgba(111, 66, 193, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+        }
+        
+        .tab-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .stats-content {
+            display: none;
+        }
+        
+        .stats-content.active {
+            display: block;
+        }
+        
+        .tier-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tier-stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tier-stat-card h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .tier-count {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #fff;
+        }
+        
+        .tier-percent {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .total-count {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('leaderboards') }}">Leaderboards</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="stats-container">
+            <div class="stats-header">
+                <h1>Skill Tier Statistics</h1>
+                <div class="stats-actions">
+                    <a href="{{ url_for('leaderboards') }}" class="cosmic-btn secondary"><i class="fas fa-trophy"></i> View Leaderboards</a>
+                    {% if session.get('user_id') %}
+                    <a href="{{ url_for('skill_recommendations') }}" class="cosmic-btn"><i class="fas fa-lightbulb"></i> Get Recommendations</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="stats-panel">
+                <h2>Tier Progression Path</h2>
+                <p>Your journey from novice to expert follows this path:</p>
+                
+                <h3>Lower Tiers (Beginner to Intermediate)</h3>
+                <div class="tier-path">
+                    {% for tier in tier_paths.lower_path %}
+                        <div class="tier-info">
+                            <div class="tier-badge {{ tier.color_class }}">{{ tier.tier_name }}</div>
+                            <div class="tier-name">{{ tier.display_name }}</div>
+                            <div class="tier-description">{{ tier.description }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <h3>Higher Tiers (Advanced to Professional)</h3>
+                <div class="tier-path">
+                    {% for tier in tier_paths.higher_path %}
+                        <div class="tier-info">
+                            <div class="tier-badge {{ tier.color_class }}">{{ tier.tier_name }}</div>
+                            <div class="tier-name">{{ tier.display_name }}</div>
+                            <div class="tier-description">{{ tier.description }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            {% if tier_counts %}
+                <div class="stats-panel">
+                    <h2>Tier Distribution</h2>
+                    
+                    <div class="stats-tabs">
+                        {% for skill_code, skill_data in tier_counts.items() %}
+                            <button class="tab-button {% if loop.first %}active{% endif %}" data-target="skill-{{ skill_code }}">
+                                {{ skill_data.skill_name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    
+                    {% for skill_code, skill_data in tier_counts.items() %}
+                        <div id="skill-{{ skill_code }}" class="stats-content {% if loop.first %}active{% endif %}">
+                            <div class="chart-container">
+                                <canvas id="chart-{{ skill_code }}"></canvas>
+                            </div>
+                            
+                            <div class="tier-stats-grid">
+                                {% set total = 0 %}
+                                {% for tier_name, count in skill_data.tiers.items() %}
+                                    {% set total = total + count %}
+                                    <div class="tier-stat-card">
+                                        <div class="tier-badge {{ tier_name|lower }}">{{ tier_name }}</div>
+                                        <div class="tier-count">{{ count }}</div>
+                                        <div class="tier-percent">Players</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="total-count">
+                                Total Ranked Players: <strong>{{ total }}</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="stats-panel">
+                    <h2>Tier Distribution</h2>
+                    <p style="text-align: center; color: rgba(255, 255, 255, 0.6); padding: 40px 0;">
+                        <i class="fas fa-info-circle" style="font-size: 40px; margin-bottom: 20px; display: block;"></i>
+                        No tier data available yet. As players set their skill tiers, statistics will appear here!
+                    </p>
+                </div>
+            {% endif %}
+            
+            <div class="stats-panel">
+                <h2>Tier System Information</h2>
+                <div style="color: rgba(255, 255, 255, 0.8); line-height: 1.6;">
+                    <p>The CosmicTeams tier system categorizes players' skills across various gameplay aspects. The system consists of two main categories:</p>
+                    
+                    <h3>Lower Tiers (LT)</h3>
+                    <p>Lower Tiers represent beginner to intermediate skill levels. These are divided into five levels (LT1-LT5), with LT1 being the entry level and LT5 representing solid proficiency.</p>
+                    <ul>
+                        <li><strong>LT1:</strong> Beginner level, just starting to learn the skill</li>
+                        <li><strong>LT2:</strong> Novice, developing basic understanding</li>
+                        <li><strong>LT3:</strong> Intermediate, comfortable with fundamental techniques</li>
+                        <li><strong>LT4:</strong> Proficient, demonstrating consistent competence</li>
+                        <li><strong>LT5:</strong> Advanced, mastering core concepts and ready to progress to higher tiers</li>
+                    </ul>
+                    
+                    <h3>Higher Tiers (HT)</h3>
+                    <p>Higher Tiers represent advanced to professional skill levels. These are also divided into five levels (HT1-HT5), with HT1 being the entry point to advanced skill and HT5 representing the highest level of mastery.</p>
+                    <ul>
+                        <li><strong>HT1:</strong> Expert level, beginning to master advanced techniques</li>
+                        <li><strong>HT2:</strong> Master, consistently demonstrating advanced skills</li>
+                        <li><strong>HT3:</strong> Elite, exceptional proficiency and strategy</li>
+                        <li><strong>HT4:</strong> Professional, near top-tier performance</li>
+                        <li><strong>HT5:</strong> Legendary, world-class skill and innovation</li>
+                    </ul>
+                    
+                    <p>To set your own tiers, visit your <a href="{{ url_for('profile') }}#minecraft-tiers" style="color: #6f42c1; text-decoration: none;">profile page</a> and update your skill settings.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('leaderboards') }}">Leaderboards</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.stats-tabs .tab-button');
+            const contentPanels = document.querySelectorAll('.stats-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    
+                    // Hide all content panels
+                    contentPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                    });
+                    
+                    // Deactivate all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Activate clicked button and its panel
+                    this.classList.add('active');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+            
+            // Chart.js initialization
+            {% for skill_code, skill_data in tier_counts.items() %}
+                const ctx{{ skill_code }} = document.getElementById('chart-{{ skill_code }}').getContext('2d');
+                
+                const tierLabels{{ skill_code }} = [];
+                const tierData{{ skill_code }} = [];
+                const tierColors{{ skill_code }} = [];
+                
+                // Collect tier data
+                {% for tier_name, count in skill_data.tiers.items() %}
+                    tierLabels{{ skill_code }}.push('{{ tier_name }}');
+                    tierData{{ skill_code }}.push({{ count }});
+                    
+                    // Set color based on tier
+                    {% if tier_name.startswith('LT') %}
+                        {% if tier_name == 'LT1' %}
+                            tierColors{{ skill_code }}.push('rgba(108, 117, 125, 0.8)');
+                        {% elif tier_name == 'LT2' %}
+                            tierColors{{ skill_code }}.push('rgba(40, 167, 69, 0.8)');
+                        {% elif tier_name == 'LT3' %}
+                            tierColors{{ skill_code }}.push('rgba(143, 89, 49, 0.8)');
+                        {% elif tier_name == 'LT4' %}
+                            tierColors{{ skill_code }}.push('rgba(0, 123, 255, 0.8)');
+                        {% elif tier_name == 'LT5' %}
+                            tierColors{{ skill_code }}.push('rgba(111, 66, 193, 0.8)');
+                        {% endif %}
+                    {% else %}
+                        {% if tier_name == 'HT1' %}
+                            tierColors{{ skill_code }}.push('rgba(173, 181, 189, 0.8)');
+                        {% elif tier_name == 'HT2' %}
+                            tierColors{{ skill_code }}.push('rgba(255, 193, 7, 0.8)');
+                        {% elif tier_name == 'HT3' %}
+                            tierColors{{ skill_code }}.push('rgba(181, 99, 38, 0.8)');
+                        {% elif tier_name == 'HT4' %}
+                            tierColors{{ skill_code }}.push('rgba(232, 62, 140, 0.8)');
+                        {% elif tier_name == 'HT5' %}
+                            tierColors{{ skill_code }}.push('rgba(220, 53, 69, 0.8)');
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                new Chart(ctx{{ skill_code }}, {
+                    type: 'bar',
+                    data: {
+                        labels: tierLabels{{ skill_code }},
+                        datasets: [{
+                            label: '{{ skill_data.skill_name }} Tier Distribution',
+                            data: tierData{{ skill_code }},
+                            backgroundColor: tierColors{{ skill_code }},
+                            borderColor: tierColors{{ skill_code }}.map(color => color.replace('0.8', '1')),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        }
+                    }
+                });
+            {% endfor %}
+        });
+    </script>
+</body>
+</html> 

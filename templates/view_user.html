@@ -600,7 +600,7 @@
                     </div>
                 </div>
                 <div class="profile-actions">
-                    {% if current_user.is_authenticated and current_user.id != user.id %}
+                    {% if session.get('user_id') and session.get('user_id') != user.id %}
                         {% if is_following %}
                             <form action="{{ url_for('unfollow_user', user_id=user.id) }}" method="post">
                                 <button type="submit" class="cosmic-btn secondary"><i class="fas fa-user-minus"></i> Unfollow</button>
@@ -651,89 +651,107 @@
             <div class="profile-section">
                 <h2 class="section-title">Skills</h2>
                 <div class="skills-grid">
-                    <!-- NPOT Skill -->
-                    <div class="skill-card" data-skill="npot">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/neth-op.svg') }}" alt="NPOT"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>NPOT</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.npot_tier else user.npot_tier|lower }}">
-                                <p>{{ user.npot_tier or 'Unranked' }}</p>
+                    {% if user_skills %}
+                        {% for skill in user_skills %}
+                        <div class="skill-card" data-skill="{{ skill.skill_code }}">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename=skill.icon_path) }}" alt="{{ skill.skill_name }}"></div>
                             </div>
-                        </div>
-                        <span class="tooltip-text">Nether Pot - {{ user.npot_tier or 'Unranked' }}</span>
-                    </div>
-                    
-                    <!-- UHC Skill -->
-                    <div class="skill-card" data-skill="uhc">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/uhc.svg') }}" alt="UHC"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>UHC</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.uhc_tier else user.uhc_tier|lower }}">
-                                <p>{{ user.uhc_tier or 'Unranked' }}</p>
+                            <div class="skill-info">
+                                <h3>{{ skill.skill_name }}</h3>
+                                <div class="tier-badge {{ skill.color_class }}">
+                                    <p>{{ skill.tier_name or 'Unranked' }}</p>
+                                </div>
                             </div>
+                            <span class="tooltip-text">{{ skill.skill_name }} - {{ skill.tier_name or 'Unranked' }}</span>
                         </div>
-                        <span class="tooltip-text">Ultra Hardcore - {{ user.uhc_tier or 'Unranked' }}</span>
-                    </div>
-                    
-                    <!-- CPVP Skill -->
-                    <div class="skill-card" data-skill="cpvp">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/cpvp.svg') }}" alt="CPVP"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>CPVP</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.cpvp_tier else user.cpvp_tier|lower }}">
-                                <p>{{ user.cpvp_tier or 'Unranked' }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Fallback to legacy tier system -->
+                        <!-- NPOT Skill -->
+                        <div class="skill-card" data-skill="npot">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/neth-op.svg') }}" alt="NPOT"></div>
                             </div>
-                        </div>
-                        <span class="tooltip-text">Crystal PVP - {{ user.cpvp_tier or 'Unranked' }}</span>
-                    </div>
-                    
-                    <!-- SWORD Skill -->
-                    <div class="skill-card" data-skill="sword">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/sword.svg') }}" alt="SWORD"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>SWORD</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.sword_tier else user.sword_tier|lower }}">
-                                <p>{{ user.sword_tier or 'Unranked' }}</p>
+                            <div class="skill-info">
+                                <h3>NPOT</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.npot_tier else user.npot_tier|lower }}">
+                                    <p>{{ user.npot_tier or 'Unranked' }}</p>
+                                </div>
                             </div>
+                            <span class="tooltip-text">Nether Pot - {{ user.npot_tier or 'Unranked' }}</span>
                         </div>
-                        <span class="tooltip-text">Sword Combat - {{ user.sword_tier or 'Unranked' }}</span>
-                    </div>
-                    
-                    <!-- AXE Skill -->
-                    <div class="skill-card" data-skill="axe">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/axe.svg') }}" alt="AXE"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>AXE</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.axe_tier else user.axe_tier|lower }}">
-                                <p>{{ user.axe_tier or 'Unranked' }}</p>
+                        
+                        <!-- UHC Skill -->
+                        <div class="skill-card" data-skill="uhc">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/uhc.svg') }}" alt="UHC"></div>
                             </div>
-                        </div>
-                        <span class="tooltip-text">Axe Combat - {{ user.axe_tier or 'Unranked' }}</span>
-                    </div>
-                    
-                    <!-- SMP Skill -->
-                    <div class="skill-card" data-skill="smp">
-                        <div class="skill-icon">
-                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/smp.svg') }}" alt="SMP"></div>
-                        </div>
-                        <div class="skill-info">
-                            <h3>SMP</h3>
-                            <div class="tier-badge {{ 'unranked' if not user.smp_tier else user.smp_tier|lower }}">
-                                <p>{{ user.smp_tier or 'Unranked' }}</p>
+                            <div class="skill-info">
+                                <h3>UHC</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.uhc_tier else user.uhc_tier|lower }}">
+                                    <p>{{ user.uhc_tier or 'Unranked' }}</p>
+                                </div>
                             </div>
+                            <span class="tooltip-text">Ultra Hardcore - {{ user.uhc_tier or 'Unranked' }}</span>
                         </div>
-                        <span class="tooltip-text">Survival Multiplayer - {{ user.smp_tier or 'Unranked' }}</span>
-                    </div>
+                        
+                        <!-- CPVP Skill -->
+                        <div class="skill-card" data-skill="cpvp">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/cpvp.svg') }}" alt="CPVP"></div>
+                            </div>
+                            <div class="skill-info">
+                                <h3>CPVP</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.cpvp_tier else user.cpvp_tier|lower }}">
+                                    <p>{{ user.cpvp_tier or 'Unranked' }}</p>
+                                </div>
+                            </div>
+                            <span class="tooltip-text">Crystal PVP - {{ user.cpvp_tier or 'Unranked' }}</span>
+                        </div>
+                        
+                        <!-- SWORD Skill -->
+                        <div class="skill-card" data-skill="sword">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/sword.svg') }}" alt="SWORD"></div>
+                            </div>
+                            <div class="skill-info">
+                                <h3>SWORD</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.sword_tier else user.sword_tier|lower }}">
+                                    <p>{{ user.sword_tier or 'Unranked' }}</p>
+                                </div>
+                            </div>
+                            <span class="tooltip-text">Sword Combat - {{ user.sword_tier or 'Unranked' }}</span>
+                        </div>
+                        
+                        <!-- AXE Skill -->
+                        <div class="skill-card" data-skill="axe">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/axe.svg') }}" alt="AXE"></div>
+                            </div>
+                            <div class="skill-info">
+                                <h3>AXE</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.axe_tier else user.axe_tier|lower }}">
+                                    <p>{{ user.axe_tier or 'Unranked' }}</p>
+                                </div>
+                            </div>
+                            <span class="tooltip-text">Axe Combat - {{ user.axe_tier or 'Unranked' }}</span>
+                        </div>
+                        
+                        <!-- SMP Skill -->
+                        <div class="skill-card" data-skill="smp">
+                            <div class="skill-icon">
+                                <div class="icon-circle"><img src="{{ url_for('static', filename='img/smp.svg') }}" alt="SMP"></div>
+                            </div>
+                            <div class="skill-info">
+                                <h3>SMP</h3>
+                                <div class="tier-badge {{ 'unranked' if not user.smp_tier else user.smp_tier|lower }}">
+                                    <p>{{ user.smp_tier or 'Unranked' }}</p>
+                                </div>
+                            </div>
+                            <span class="tooltip-text">Survival Multiplayer - {{ user.smp_tier or 'Unranked' }}</span>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             

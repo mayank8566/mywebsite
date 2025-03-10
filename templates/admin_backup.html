@@ -1,0 +1,118 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Database Backup Management{% endblock %}
+
+{% block content %}
+<div class="admin-section-header">
+    <h2>Database Backup Management</h2>
+    <p>Create and manage database backups to prevent data loss</p>
+</div>
+
+<div class="admin-content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="admin-panel">
+        <div class="panel-heading">
+            <h3>Create New Backup</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ url_for('admin_backup') }}" method="post">
+                <input type="hidden" name="action" value="create">
+                
+                <div class="form-group">
+                    <label for="backup_type">Backup Type:</label>
+                    <select name="backup_type" id="backup_type" class="form-control">
+                        <option value="manual">Manual Backup</option>
+                        <option value="daily">Daily Backup</option>
+                        <option value="weekly">Weekly Backup</option>
+                        <option value="monthly">Monthly Backup</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Backup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="admin-panel">
+        <div class="panel-heading">
+            <h3>Available Backups</h3>
+        </div>
+        <div class="panel-body">
+            {% if backups %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Filename</th>
+                                <th>Type</th>
+                                <th>Created At</th>
+                                <th>Size</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for backup in backups %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ backup.filename }}</td>
+                                <td><span class="badge badge-{{ 'primary' if backup.type == 'manual' else 'info' if backup.type == 'daily' else 'success' if backup.type == 'weekly' else 'warning' if backup.type == 'monthly' else 'secondary' }}">{{ backup.type }}</span></td>
+                                <td>{{ backup.created_at }}</td>
+                                <td>{{ (backup.size / 1024) | round(1) }} KB</td>
+                                <td>
+                                    <form action="{{ url_for('admin_backup') }}" method="post" onsubmit="return confirm('Are you sure you want to restore this backup? This will replace the current database!');" style="display:inline">
+                                        <input type="hidden" name="action" value="restore">
+                                        <input type="hidden" name="backup_id" value="{{ loop.index0 }}">
+                                        <button type="submit" class="btn btn-warning btn-sm">Restore</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No backups available yet. Create your first backup using the form above.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="admin-panel">
+        <div class="panel-heading">
+            <h3>Backup System Information</h3>
+        </div>
+        <div class="panel-body">
+            <p>The backup system automatically creates:</p>
+            <ul>
+                <li><strong>Daily backups</strong>: Created every day at 3:00 AM, kept for 7 days</li>
+                <li><strong>Weekly backups</strong>: Created every Monday at 3:00 AM, kept for 4 weeks</li>
+                <li><strong>Monthly backups</strong>: Created on the 1st of each month at 3:00 AM, kept for 12 months</li>
+                <li><strong>Manual backups</strong>: Created on demand and kept indefinitely</li>
+            </ul>
+            <p>Each backup includes:</p>
+            <ul>
+                <li>A complete copy of the database</li>
+                <li>Schema information (tables and column definitions)</li>
+                <li>Metadata about the backup (creation time, size, etc.)</li>
+                <li>SHA256 hash for integrity verification</li>
+            </ul>
+            <div class="alert alert-warning">
+                <strong>Important:</strong> Restoring a backup will replace the current database. A safety backup will be created before restoration, but there may still be a risk of data loss.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

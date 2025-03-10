@@ -468,13 +468,18 @@
                     <div class="admin-section-content">
                         <div class="db-management">
                             <div class="db-actions">
-                                <a href="{{ url_for('backup_database_page') }}" class="cosmic-btn">
-                                    <i class="fas fa-download"></i> Backup Database
+                                <a href="{{ url_for('admin_backup') }}" class="cosmic-btn primary">
+                                    <i class="fas fa-database"></i> Advanced Backup System
                                 </a>
-                                <p class="small-text">Create a backup of the current database</p>
+                                <p class="small-text">Comprehensive backup system with scheduled backups and restore capabilities</p>
+                                
+                                <a href="{{ url_for('backup_database_page') }}" class="cosmic-btn" style="margin-top: 20px;">
+                                    <i class="fas fa-download"></i> Simple Backup
+                                </a>
+                                <p class="small-text">Create a simple backup of the current database</p>
                                 
                                 <a href="{{ url_for('restore_database_page') }}" class="cosmic-btn danger-btn" style="margin-top: 20px;">
-                                    <i class="fas fa-upload"></i> Restore Database
+                                    <i class="fas fa-upload"></i> Simple Restore
                                 </a>
                                 <p class="small-text">Restore the database from a backup file</p>
                                 

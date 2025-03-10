@@ -231,4 +231,63 @@ VALUES
 ('accent_color', '#7b2cbf', 'string', 'Accent color for buttons and highlights'),
 ('allow_registrations', 'true', 'boolean', 'Whether new user registrations are allowed'),
 ('max_team_size', '10', 'integer', 'Maximum number of members allowed in a team'),
-('featured_teams_count', '3', 'integer', 'Number of featured teams to display on homepage'); 
+('featured_teams_count', '3', 'integer', 'Number of featured teams to display on homepage');
+
+-- Add the Tiers table
+CREATE TABLE IF NOT EXISTS tiers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tier_name TEXT NOT NULL,  -- e.g., LT1, HT5
+    display_name TEXT NOT NULL,  -- e.g., "Lower Tier 1", "Higher Tier 5"
+    description TEXT,
+    color_class TEXT NOT NULL,  -- CSS class for styling
+    category TEXT NOT NULL,  -- LT or HT
+    level INTEGER NOT NULL,  -- 1-5
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add the SkillTypes table
+CREATE TABLE IF NOT EXISTS skill_types (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    skill_code TEXT NOT NULL UNIQUE,  -- e.g., npot, uhc, cpvp
+    skill_name TEXT NOT NULL,  -- e.g., "Nether Pot", "Ultra Hardcore"
+    description TEXT,
+    icon_path TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add the UserSkills table to track user skills and tiers
+CREATE TABLE IF NOT EXISTS user_skills (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    skill_type_id INTEGER NOT NULL,
+    tier_id INTEGER,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_type_id) REFERENCES skill_types(id) ON DELETE CASCADE,
+    FOREIGN KEY (tier_id) REFERENCES tiers(id) ON DELETE SET NULL,
+    UNIQUE(user_id, skill_type_id)
+);
+
+-- Insert default tiers
+INSERT OR IGNORE INTO tiers (tier_name, display_name, description, color_class, category, level) VALUES
+('LT1', 'Lower Tier 1', 'Beginner', 'lt1', 'LT', 1),
+('LT2', 'Lower Tier 2', 'Novice', 'lt2', 'LT', 2),
+('LT3', 'Lower Tier 3', 'Intermediate', 'lt3', 'LT', 3),
+('LT4', 'Lower Tier 4', 'Proficient', 'lt4', 'LT', 4),
+('LT5', 'Lower Tier 5', 'Advanced', 'lt5', 'LT', 5),
+('HT1', 'Higher Tier 1', 'Expert', 'ht1', 'HT', 1),
+('HT2', 'Higher Tier 2', 'Master', 'ht2', 'HT', 2),
+('HT3', 'Higher Tier 3', 'Elite', 'ht3', 'HT', 3),
+('HT4', 'Higher Tier 4', 'Professional', 'ht4', 'HT', 4),
+('HT5', 'Higher Tier 5', 'Legendary', 'ht5', 'HT', 5);
+
+-- Insert default skill types
+INSERT OR IGNORE INTO skill_types (skill_code, skill_name, description, icon_path) VALUES
+('npot', 'Nether Pot', 'Nether portal techniques and strategies', 'img/neth-op.svg'),
+('uhc', 'Ultra Hardcore', 'Ultra Hardcore PVP skills', 'img/uhc.svg'),
+('cpvp', 'Crystal PVP', 'End crystal combat techniques', 'img/cpvp.svg'),
+('sword', 'Sword Combat', 'Sword fighting techniques', 'img/sword.svg'),
+('axe', 'Axe Combat', 'Axe combat techniques', 'img/axe.svg'),
+('smp', 'Survival Multiplayer', 'General survival multiplayer skills', 'img/smp.svg'); 

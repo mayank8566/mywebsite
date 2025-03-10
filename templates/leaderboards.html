@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Leaderboards - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .leaderboards-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .leaderboards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .leaderboards-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
+        }
+        
+        .leaderboards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .leaderboard-card {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .leaderboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(111, 66, 193, 0.3);
+        }
+        
+        .leaderboard-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .skill-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        
+        .leaderboard-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .leaderboard-header .skill-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        .leaderboard-body {
+            padding: 15px 0;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #fff;
+        }
+        
+        .leaderboard-table tr {
+            transition: background 0.2s ease;
+        }
+        
+        .leaderboard-table tr:hover {
+            background: rgba(111, 66, 193, 0.1);
+        }
+        
+        .leaderboard-table td {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .leaderboard-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .rank-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 50px;
+        }
+        
+        .rank-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700, #e6bc17);
+            color: #000;
+        }
+        
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+            color: #000;
+        }
+        
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32, #b26a00);
+            color: #000;
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .user-name:hover {
+            color: #6f42c1;
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-align: center;
+            min-width: 50px;
+        }
+        
+        /* Tier colors */
+        .lt1 {
+            background: rgba(108, 117, 125, 0.8);
+            color: #fff;
+        }
+        
+        .lt2 {
+            background: rgba(40, 167, 69, 0.8);
+            color: #fff;
+        }
+        
+        .lt3 {
+            background: rgba(143, 89, 49, 0.8);
+            color: #fff;
+        }
+        
+        .lt4 {
+            background: rgba(0, 123, 255, 0.8);
+            color: #fff;
+        }
+        
+        .lt5 {
+            background: rgba(111, 66, 193, 0.8);
+            color: #fff;
+        }
+        
+        .ht1 {
+            background: rgba(173, 181, 189, 0.8);
+            color: #000;
+        }
+        
+        .ht2 {
+            background: rgba(255, 193, 7, 0.8);
+            color: #000;
+        }
+        
+        .ht3 {
+            background: rgba(181, 99, 38, 0.8);
+            color: #fff;
+        }
+        
+        .ht4 {
+            background: rgba(232, 62, 140, 0.8);
+            color: #fff;
+        }
+        
+        .ht5 {
+            background: rgba(220, 53, 69, 0.8);
+            color: #fff;
+        }
+        
+        .view-all {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .view-all a {
+            color: #6f42c1;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .view-all a:hover {
+            color: #8e44ad;
+            transform: translateY(-2px);
+        }
+        
+        .empty-state {
+            padding: 30px 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .empty-state i {
+            font-size: 30px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .tools-panel {
+            background: rgba(16, 18, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(111, 66, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tools-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            background: rgba(111, 66, 193, 0.1);
+        }
+        
+        .tool-card i {
+            font-size: 30px;
+            color: #6f42c1;
+            margin-bottom: 15px;
+        }
+        
+        .tool-card h3 {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tool-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .tool-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: rgba(111, 66, 193, 0.3);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .tool-link:hover {
+            background: rgba(111, 66, 193, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .leaderboards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .leaderboards-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('leaderboards') }}" class="active">Leaderboards</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="leaderboards-container">
+            <div class="leaderboards-header">
+                <h1>Skill Leaderboards</h1>
+                <div class="header-actions">
+                    <a href="{{ url_for('tier_stats') }}" class="cosmic-btn secondary"><i class="fas fa-chart-pie"></i> View Tier Statistics</a>
+                    {% if session.get('user_id') %}
+                    <a href="{{ url_for('skill_recommendations') }}" class="cosmic-btn"><i class="fas fa-lightbulb"></i> Get Recommendations</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="tools-panel">
+                <h2>Tier Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Tier Statistics</h3>
+                        <p>View distribution of player tiers across all skills and understand the progression path.</p>
+                        <a href="{{ url_for('tier_stats') }}" class="tool-link">View Statistics</a>
+                    </div>
+                    
+                    {% if session.get('user_id') %}
+                    <div class="tool-card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Skill Recommendations</h3>
+                        <p>Get personalized recommendations based on your current skill tiers and progression.</p>
+                        <a href="{{ url_for('skill_recommendations') }}" class="tool-link">Get Recommendations</a>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <i class="fas fa-user-edit"></i>
+                        <h3>Update Your Tiers</h3>
+                        <p>Update your skill tiers to track your progress and get more accurate recommendations.</p>
+                        <a href="{{ url_for('profile') }}#minecraft-tiers" class="tool-link">Update Tiers</a>
+                    </div>
+                    {% else %}
+                    <div class="tool-card">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>Join the Community</h3>
+                        <p>Register an account to set your skill tiers and appear on the leaderboards.</p>
+                        <a href="{{ url_for('register') }}" class="tool-link">Register Now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if leaderboards %}
+                <div class="leaderboards-grid">
+                    {% for skill_code, skill_data in leaderboards.items() %}
+                        <div class="leaderboard-card">
+                            <div class="leaderboard-header">
+                                <div class="skill-icon">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                                <div>
+                                    <h2>{{ skill_data.skill_name }}</h2>
+                                    <div class="skill-description">{{ skill_data.description }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="leaderboard-body">
+                                {% if skill_data.leaderboard %}
+                                    <table class="leaderboard-table">
+                                        <tbody>
+                                            {% for entry in skill_data.leaderboard %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="rank-cell">
+                                                            <div class="rank-number {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+                                                                {{ loop.index }}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="user-cell">
+                                                            <div class="user-avatar">
+                                                                <img src="{{ url_for('static', filename='img/avatars/' + entry.profile_pic) if entry.profile_pic else url_for('static', filename='img/default_avatar.png') }}" alt="{{ entry.username }}">
+                                                            </div>
+                                                            <a href="{{ url_for('view_user', user_id=entry.user_id) }}" class="user-name">{{ entry.username }}</a>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="tier-badge {{ entry.tier_name|lower }}">{{ entry.tier_name }}</span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-trophy"></i>
+                                        <p>No players ranked yet. Be the first!</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="view-all">
+                                <a href="{{ url_for('skill_view', skill_code=skill_code) }}">
+                                    View Full Leaderboard <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="tools-panel">
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No Leaderboard Data Available</h3>
+                        <p>
+                            Leaderboards will appear here once players start setting their skill tiers. 
+                            {% if session.get('user_id') %}
+                                <a href="{{ url_for('profile') }}#minecraft-tiers">Update your skill tiers</a> to be the first!
+                            {% else %}
+                                <a href="{{ url_for('register') }}">Register</a> and set your skill tiers to be the first!
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('leaderboards') }}">Leaderboards</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

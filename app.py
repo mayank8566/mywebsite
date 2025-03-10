@@ -12,6 +12,19 @@ import shutil
 import json
 import time
 import re
+import threading
+try:
+    import db_backup
+except ImportError:
+    print("Warning: Could not import db_backup module")
+
+try:
+    from tier_manager import TierManager
+    # Initialize the tier system
+    TierManager.initialize_tables()
+    print("Tier system initialized")
+except ImportError:
+    print("Warning: Could not import tier_manager module")
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -811,6 +824,14 @@ def profile():
     
     conn.close()
     
+    # Get user skills using new tier system
+    user_skills = []
+    try:
+        if 'TierManager' in globals():
+            user_skills = TierManager.get_user_skills(user_id)
+    except Exception as e:
+        app.logger.error(f"Error fetching user skills: {str(e)}")
+    
     message = session.pop('message', None)
     message_type = session.pop('message_type', 'info')
     
@@ -819,7 +840,8 @@ def profile():
                           user_team=user_team,
                           is_team_leader=is_team_leader,
                           message=message, 
-                          message_type=message_type)
+                          message_type=message_type,
+                          user_skills=user_skills)
 
 @app.route('/profile/update', methods=['POST'])
 @login_required
@@ -2340,75 +2362,32 @@ def view_user(user_id):
         # Check if user is trying to view their own profile
         if session.get('user_id') == user_id:
             return redirect(url_for('profile'))
-
-        # Log for debugging
-        print(f"Viewing user profile for user_id: {user_id}")
-
+        
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
-        # Check if all required columns exist and create them if they don't
-        print("Checking database schema...")
-        cursor.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        print(f"Current columns: {columns}")
-        
-        # Add any missing columns
-        missing_columns = []
-        required_columns = ['npot_tier', 'uhc_tier', 'cpvp_tier', 'sword_tier', 'axe_tier', 'smp_tier']
-        
-        for column in required_columns:
-            if column not in columns:
-                missing_columns.append(column)
-                print(f"Adding missing column: {column}")
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} TEXT")
-        
-        if 'npot_tier' in missing_columns and 'nethpot_tier' in columns:
-            print("Mapping nethpot_tier to npot_tier")
-            cursor.execute("UPDATE users SET npot_tier = nethpot_tier WHERE nethpot_tier IS NOT NULL")
-            
-        if missing_columns:
-            conn.commit()
-            print(f"Added {len(missing_columns)} missing columns: {missing_columns}")
         
         # Get user details with explicit list of columns to fetch
-        print("Fetching user data...")
-        try:
-            cursor.execute('''
-                SELECT id, username, profile_pic, profile_music, bio, location, website, 
-                       full_name, tier, npot_tier, uhc_tier, cpvp_tier, sword_tier, 
-                       axe_tier, smp_tier, nethpot_tier
-                FROM users
-                WHERE id = ?
-            ''', (user_id,))
-            user_data = cursor.fetchone()
-        except sqlite3.OperationalError as e:
-            print(f"Database error: {str(e)}")
-            # Try a simpler query if the specific columns fail
-            cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-            user_data = cursor.fetchone()
-
+        cursor.execute('''
+            SELECT id, username, profile_pic, profile_music, bio, location, website, 
+                   full_name, tier, npot_tier, uhc_tier, cpvp_tier, sword_tier, 
+                   axe_tier, smp_tier, nethpot_tier
+            FROM users
+            WHERE id = ?
+        ''', (user_id,))
+        user_data = cursor.fetchone()
+        
         if not user_data:
             conn.close()
-            print(f"User not found: {user_id}")
             flash('User not found', 'error')
             return redirect(url_for('teams'))
             
         # Convert to dict to allow attribute assignment
         user = dict(user_data)
-        print(f"User data keys: {user.keys()}")
         
         # Ensure npot_tier is set correctly
         if not user.get('npot_tier') and user.get('nethpot_tier'):
             user['npot_tier'] = user['nethpot_tier']
-            print(f"Setting npot_tier from nethpot_tier: {user['npot_tier']}")
-        
-        # Set default values for tier fields
-        for field in required_columns:
-            if field not in user or user[field] is None or user[field] == '':
-                user[field] = 'Unranked'
-                print(f"Setting default value for {field}: Unranked")
 
         # Get user's team information
         user_team = get_user_team(user_id)
@@ -2420,22 +2399,42 @@ def view_user(user_id):
                 unread_count = get_unread_mail_count(session.get('user_id'))
             except Exception as e:
                 print(f"Error getting unread mail count: {str(e)}")
-                # Default to 0 if there's an error
-
-        conn.close()
-        print("Successfully prepared user data for rendering")
         
-        # Instead of relying on the template to handle None or missing values,
-        # we've already set defaults for all the tier fields above
-        return render_template('view_user.html', user=user, user_team=user_team,
-                            unread_mail_count=unread_count)
+        conn.close()
+        
+        # Get user skills using new tier system
+        user_skills = []
+        try:
+            if 'TierManager' in globals():
+                user_skills = TierManager.get_user_skills(user_id)
+        except Exception as e:
+            app.logger.error(f"Error fetching user skills: {str(e)}")
+        
+        # Check if the current user is following this user
+        is_following = False
+        if session.get('user_id'):
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT 1 FROM followers 
+                WHERE follower_id = ? AND following_id = ?
+            ''', (session.get('user_id'), user_id))
+            is_following = cursor.fetchone() is not None
+            conn.close()
+        
+        return render_template('view_user.html', 
+                              user=user, 
+                              user_team=user_team,
+                              unread_mail_count=unread_count,
+                              user_skills=user_skills,
+                              is_following=is_following)
                             
     except Exception as e:
-        print(f"Error in view_user: {str(e)}")
+        app.logger.error(f"Error in view_user: {str(e)}")
         import traceback
         traceback.print_exc()
-        # Return a user-friendly error page
-        return render_template('error.html', error_message=f"An error occurred while loading the user profile: {str(e)}"), 500
+        flash('An error occurred while loading the user profile', 'error')
+        return redirect(url_for('teams'))
 
 @app.route('/teams/<int:team_id>/promote/<int:user_id>', methods=['POST'])
 @login_required
@@ -2701,68 +2700,131 @@ def update_skill_tiers():
     try:
         user_id = session.get('user_id')
         
-        # Get tier values from form
-        npot_tier = request.form.get('npot_tier', '').strip().upper()
-        uhc_tier = request.form.get('uhc_tier', '').strip().upper()
-        cpvp_tier = request.form.get('cpvp_tier', '').strip().upper()
-        sword_tier = request.form.get('sword_tier', '').strip().upper()
-        axe_tier = request.form.get('axe_tier', '').strip().upper()
-        smp_tier = request.form.get('smp_tier', '').strip().upper()
-        
-        # Validate tier values
-        valid_tiers = ['LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'HT1', 'HT2', 'HT3', 'HT4', 'HT5']
-        
-        # Set to None if not valid
-        if npot_tier not in valid_tiers:
-            npot_tier = None
-        if uhc_tier not in valid_tiers:
-            uhc_tier = None
-        if cpvp_tier not in valid_tiers:
-            cpvp_tier = None
-        if sword_tier not in valid_tiers:
-            sword_tier = None
-        if axe_tier not in valid_tiers:
-            axe_tier = None
-        if smp_tier not in valid_tiers:
-            smp_tier = None
-        
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        
-        # Ensure all necessary columns exist
-        cursor.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        missing_columns = []
-        for column_name in ['npot_tier', 'axe_tier']:
-            if column_name not in columns:
-                missing_columns.append(column_name)
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column_name} TEXT")
-        
-        if missing_columns:
+        # Use new tier system if available
+        if 'TierManager' in globals():
+            results = TierManager.update_user_skills_from_form(user_id, request.form)
+            
+            # Check if any updates failed
+            failures = [msg for success, msg in results if not success]
+            if failures:
+                for msg in failures:
+                    flash(f"Error: {msg}", 'error')
+                return redirect(url_for('profile'))
+            
+            # Update legacy tier columns for backward compatibility
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            
+            # Get tier values from form
+            npot_tier = request.form.get('npot_tier', '').strip().upper()
+            uhc_tier = request.form.get('uhc_tier', '').strip().upper()
+            cpvp_tier = request.form.get('cpvp_tier', '').strip().upper()
+            sword_tier = request.form.get('sword_tier', '').strip().upper()
+            axe_tier = request.form.get('axe_tier', '').strip().upper()
+            smp_tier = request.form.get('smp_tier', '').strip().upper()
+            
+            # Validate tier values
+            valid_tiers = ['LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'HT1', 'HT2', 'HT3', 'HT4', 'HT5']
+            
+            # Set to None if not valid
+            if npot_tier not in valid_tiers:
+                npot_tier = None
+            if uhc_tier not in valid_tiers:
+                uhc_tier = None
+            if cpvp_tier not in valid_tiers:
+                cpvp_tier = None
+            if sword_tier not in valid_tiers:
+                sword_tier = None
+            if axe_tier not in valid_tiers:
+                axe_tier = None
+            if smp_tier not in valid_tiers:
+                smp_tier = None
+            
+            # Update legacy columns
+            cursor.execute('''
+                UPDATE users SET
+                    npot_tier = ?,
+                    uhc_tier = ?,
+                    cpvp_tier = ?,
+                    sword_tier = ?,
+                    axe_tier = ?,
+                    smp_tier = ?
+                WHERE id = ?
+            ''', (npot_tier, uhc_tier, cpvp_tier, sword_tier, axe_tier, smp_tier, user_id))
+            
+            # Also update nethpot_tier for backward compatibility
+            if npot_tier:
+                cursor.execute('UPDATE users SET nethpot_tier = ? WHERE id = ?', (npot_tier, user_id))
+            
             conn.commit()
-        
-        # Update user's tiers
-        cursor.execute('''
-            UPDATE users SET
-                npot_tier = ?,
-                uhc_tier = ?,
-                cpvp_tier = ?,
-                sword_tier = ?,
-                axe_tier = ?,
-                smp_tier = ?
-            WHERE id = ?
-        ''', (npot_tier, uhc_tier, cpvp_tier, sword_tier, axe_tier, smp_tier, user_id))
-        
-        # Also update nethpot_tier for backward compatibility
-        if npot_tier:
-            cursor.execute('UPDATE users SET nethpot_tier = ? WHERE id = ?', (npot_tier, user_id))
-        
-        conn.commit()
-        conn.close()
-        
-        flash('Your skill tiers have been updated successfully!', 'success')
-        return redirect(url_for('profile'))
+            conn.close()
+            
+            flash('Your skill tiers have been updated successfully!', 'success')
+            return redirect(url_for('profile'))
+        else:
+            # Fall back to legacy method
+            # Get tier values from form
+            npot_tier = request.form.get('npot_tier', '').strip().upper()
+            uhc_tier = request.form.get('uhc_tier', '').strip().upper()
+            cpvp_tier = request.form.get('cpvp_tier', '').strip().upper()
+            sword_tier = request.form.get('sword_tier', '').strip().upper()
+            axe_tier = request.form.get('axe_tier', '').strip().upper()
+            smp_tier = request.form.get('smp_tier', '').strip().upper()
+            
+            # Validate tier values
+            valid_tiers = ['LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'HT1', 'HT2', 'HT3', 'HT4', 'HT5']
+            
+            # Set to None if not valid
+            if npot_tier not in valid_tiers:
+                npot_tier = None
+            if uhc_tier not in valid_tiers:
+                uhc_tier = None
+            if cpvp_tier not in valid_tiers:
+                cpvp_tier = None
+            if sword_tier not in valid_tiers:
+                sword_tier = None
+            if axe_tier not in valid_tiers:
+                axe_tier = None
+            if smp_tier not in valid_tiers:
+                smp_tier = None
+            
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            
+            # Ensure all necessary columns exist
+            cursor.execute("PRAGMA table_info(users)")
+            columns = [column[1] for column in cursor.fetchall()]
+            
+            missing_columns = []
+            for column_name in ['npot_tier', 'axe_tier']:
+                if column_name not in columns:
+                    missing_columns.append(column_name)
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {column_name} TEXT")
+            
+            if missing_columns:
+                conn.commit()
+            
+            # Update user's tiers
+            cursor.execute('''
+                UPDATE users SET
+                    npot_tier = ?,
+                    uhc_tier = ?,
+                    cpvp_tier = ?,
+                    sword_tier = ?,
+                    axe_tier = ?,
+                    smp_tier = ?
+                WHERE id = ?
+            ''', (npot_tier, uhc_tier, cpvp_tier, sword_tier, axe_tier, smp_tier, user_id))
+            
+            # Also update nethpot_tier for backward compatibility
+            if npot_tier:
+                cursor.execute('UPDATE users SET nethpot_tier = ? WHERE id = ?', (npot_tier, user_id))
+            
+            conn.commit()
+            conn.close()
+            
+            flash('Your skill tiers have been updated successfully!', 'success')
+            return redirect(url_for('profile'))
         
     except Exception as e:
         print(f"Error updating skill tiers: {str(e)}")
@@ -3047,6 +3109,221 @@ def restore_database():
         flash(f'Failed to restore database: {str(e)}', 'error')
         return redirect(url_for('restore_database_page'))
 
+@app.before_first_request
+def initialize_app():
+    """Initialize the app before first request"""
+    try:
+        # Start the backup scheduler in a separate thread
+        if 'db_backup' in globals():
+            threading.Thread(target=db_backup.start_scheduler, daemon=True).start()
+            app.logger.info("Database backup scheduler started")
+            
+        # Migrate existing user tier data
+        if 'TierManager' in globals():
+            TierManager.migrate_existing_user_tiers()
+            app.logger.info("User tiers migrated to new system")
+    except Exception as e:
+        app.logger.error(f"Failed to start initialization: {str(e)}")
+
+@app.route('/admin/backup', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_backup():
+    """Admin backup management page"""
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'create':
+            backup_type = request.form.get('backup_type', 'manual')
+            success, result = db_backup.create_backup(backup_type)
+            
+            if success:
+                flash(f"Backup created successfully: {os.path.basename(result)}", "success")
+            else:
+                flash(f"Backup failed: {result}", "error")
+                
+        elif action == 'restore':
+            backup_id = request.form.get('backup_id')
+            if not backup_id:
+                flash("No backup selected for restoration", "error")
+            else:
+                # Get backup list
+                backups = db_backup.list_backups()
+                if 0 <= int(backup_id) < len(backups):
+                    backup_path = backups[int(backup_id)]['path']
+                    # This would be dangerous to do directly in a production environment
+                    # In a real app, you might want to queue this for execution during maintenance
+                    success, message = db_backup.restore_backup(backup_path)
+                    
+                    if success:
+                        flash(f"Database restored successfully from {os.path.basename(backup_path)}", "success")
+                    else:
+                        flash(f"Restore failed: {message}", "error")
+                else:
+                    flash("Invalid backup selected", "error")
+    
+    # Get backup list for display
+    try:
+        backups = db_backup.list_backups()
+    except Exception as e:
+        app.logger.error(f"Failed to list backups: {str(e)}")
+        backups = []
+        flash(f"Failed to list backups: {str(e)}", "error")
+    
+    return render_template('admin_backup.html', backups=backups)
+
 # Run the application
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False) 
+
+@app.route('/leaderboards')
+def leaderboards():
+    """Display leaderboards for all skills"""
+    try:
+        # Check if tier_manager module is available
+        if 'TierManager' not in globals():
+            from tier_manager import TierManager
+        
+        # Get leaderboards for all skills
+        leaderboards = TierManager.get_all_leaderboards(limit=10)
+        
+        return render_template('leaderboards.html', 
+                               leaderboards=leaderboards,
+                               unread_mail_count=get_unread_mail_count())
+    except Exception as e:
+        flash(f"Error loading leaderboards: {str(e)}", "error")
+        return redirect(url_for('main'))
+
+@app.route('/tier-stats')
+def tier_stats():
+    """Display statistics about skill tiers"""
+    try:
+        # Check if tier_manager module is available
+        if 'TierManager' not in globals():
+            from tier_manager import TierManager
+        
+        # Get tier counts
+        tier_counts = TierManager.get_tier_counts()
+        
+        # Get tier progression path
+        tier_paths = TierManager.get_tier_progression_path()
+        
+        return render_template('tier_stats.html', 
+                               tier_counts=tier_counts,
+                               tier_paths=tier_paths,
+                               unread_mail_count=get_unread_mail_count())
+    except Exception as e:
+        flash(f"Error loading tier statistics: {str(e)}", "error")
+        return redirect(url_for('main'))
+
+@app.route('/skill-recommendations')
+@login_required
+def skill_recommendations():
+    """Display personalized skill recommendations for the current user"""
+    try:
+        # Check if tier_manager module is available
+        if 'TierManager' not in globals():
+            from tier_manager import TierManager
+        
+        user_id = session.get('user_id')
+        
+        # Get user's current skills
+        user_skills = TierManager.get_user_skills(user_id)
+        
+        # Get recommendations
+        recommendations = TierManager.get_tier_recommendations(user_id)
+        
+        # Get user's ranks in each skill
+        user_ranks = {}
+        for skill in user_skills:
+            if skill.get('tier_name'):
+                user_ranks[skill['skill_code']] = TierManager.get_user_tier_rank(user_id, skill['skill_code'])
+        
+        return render_template('skill_recommendations.html', 
+                               user_skills=user_skills,
+                               recommendations=recommendations,
+                               user_ranks=user_ranks,
+                               unread_mail_count=get_unread_mail_count())
+    except Exception as e:
+        flash(f"Error loading skill recommendations: {str(e)}", "error")
+        return redirect(url_for('profile'))
+
+@app.route('/skill/<skill_code>')
+def skill_view(skill_code):
+    """Display information about a specific skill and its leaderboard"""
+    try:
+        # Check if tier_manager module is available
+        if 'TierManager' not in globals():
+            from tier_manager import TierManager
+        
+        # Get skill details
+        skill_types = TierManager.get_all_skill_types()
+        skill = next((s for s in skill_types if s['skill_code'] == skill_code), None)
+        
+        if not skill:
+            flash(f"Skill '{skill_code}' not found", "error")
+            return redirect(url_for('leaderboards'))
+        
+        # Add a reasonable icon if one is not provided
+        if not skill.get('icon'):
+            skill_icons = {
+                'npot': 'fas fa-fire',
+                'uhc': 'fas fa-heart',
+                'cpvp': 'fas fa-gem',
+                'sword': 'fas fa-sword',
+                'axe': 'fas fa-axe',
+                'smp': 'fas fa-cubes'
+            }
+            skill['icon'] = skill_icons.get(skill_code, 'fas fa-gamepad')
+        
+        # Get leaderboard for this skill
+        leaderboard = TierManager.get_skill_leaderboard(skill_code, limit=50)
+        
+        # Separate leaderboards for lower and higher tiers
+        lower_tier_leaderboard = [entry for entry in leaderboard if entry['category'] == 'LT']
+        higher_tier_leaderboard = [entry for entry in leaderboard if entry['category'] == 'HT']
+        
+        # Get tier distribution
+        tier_counts = TierManager.get_tier_counts().get(skill_code, {}).get('tiers', {})
+        
+        total_players = sum(tier_counts.values()) if tier_counts else 0
+        
+        # Calculate tier distribution percentages
+        tier_distribution = {}
+        if total_players > 0:
+            for tier, count in tier_counts.items():
+                percentage = round((count / total_players) * 100, 1)
+                tier_distribution[tier] = {
+                    'count': count,
+                    'percentage': percentage
+                }
+        
+        # Find most common tier
+        most_common_tier = max(tier_counts.items(), key=lambda x: x[1])[0] if tier_counts else None
+        
+        # Count highest tier players (HT5)
+        highest_tier_count = tier_counts.get('HT5', 0)
+        
+        # Get current user's tier if logged in
+        user_tier = None
+        if 'user_id' in session:
+            user_skills = TierManager.get_user_skills(session['user_id'])
+            user_skill = next((s for s in user_skills if s['skill_code'] == skill_code), None)
+            if user_skill and user_skill.get('tier_name'):
+                user_tier = user_skill['tier_name']
+        
+        return render_template('skill_view.html',
+                               skill=skill,
+                               leaderboard=leaderboard,
+                               lower_tier_leaderboard=lower_tier_leaderboard,
+                               higher_tier_leaderboard=higher_tier_leaderboard,
+                               total_players=total_players,
+                               most_common_tier=most_common_tier,
+                               highest_tier_count=highest_tier_count,
+                               tier_distribution=tier_distribution,
+                               user_tier=user_tier,
+                               unread_mail_count=get_unread_mail_count())
+    except Exception as e:
+        flash(f"Error loading skill information: {str(e)}", "error")
+        return redirect(url_for('leaderboards'))
