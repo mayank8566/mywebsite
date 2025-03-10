@@ -6,8 +6,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import the Flask application
-from app import app as application
+from app import app
 
-# This allows both running the app through Gunicorn/WSGI and directly
+# This file is used by Gunicorn on Render
 if __name__ == "__main__":
-    application.run(host='0.0.0.0', port=5000) 
+    app.run() 

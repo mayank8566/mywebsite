@@ -23,9 +23,9 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Sessions last for 7 days
 app.config['SESSION_PERMANENT'] = True
 
-# Database configuration - Use persistent disk on Render
+# Database configuration - Use a path that works on Render
 is_render = os.environ.get('RENDER') == 'true'
-DB_DIR = '/data' if is_render else '.'
+DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 # Upload directories configuration
@@ -34,7 +34,7 @@ UPLOAD_FOLDER_MUSIC = 'static/uploads/profile_music'
 UPLOAD_FOLDER_TEAM_LOGOS = 'static/uploads/team_logos'
 
 # Create necessary directories
-if is_render and not os.path.exists(DB_DIR):
+if not os.path.exists(DB_DIR):
     os.makedirs(DB_DIR, exist_ok=True)
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)

@@ -14,7 +14,20 @@ A galaxy-themed web application for managing teams with beautiful animations and
 
 ## Deployment on Render
 
-This application is configured for automatic deployment on Render with persistent database storage.
+This application is configured for automatic deployment on Render.
+
+### Important Note About Database Storage
+
+The application stores the database in a local folder called `data`. On Render's free tier, this directory is **ephemeral**, which means:
+
+1. Data will be preserved between application restarts within the same deployment
+2. Data will be **LOST** when a new deployment is made
+
+To preserve your data between deployments on Render:
+
+1. Use the application's built-in backup feature in the Admin Dashboard
+2. Download your backups regularly
+3. After a new deployment, use the restore feature to upload your latest backup
 
 ### How to deploy
 
@@ -34,15 +47,17 @@ The application is set up to automatically deploy whenever you push changes to t
 3. Push the changes to your GitHub repository
 4. Render will automatically detect the changes and redeploy your application
 
-### Database Persistence
+### Database Management
 
-The application uses a persistent disk on Render to store the SQLite database. This ensures that your data is preserved between deployments. 
+To keep your data safe across deployments:
 
-The admin dashboard includes a Database Management section where you can:
+- **Always create a backup before pushing code changes**
+- **Download your backup files to your local machine**
+- **After a new deployment, restore from your latest backup**
+
+The Admin Dashboard includes a Database Management section where you can:
 - Create database backups
 - Restore the database from backups
-
-It's recommended to create regular backups, especially before major changes or deployments.
 
 ## Local Development
 
