@@ -197,46 +197,105 @@
             text-decoration: underline;
         }
         
-        .skill-grid {
+        .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
+            margin-top: 20px;
         }
         
         .skill-card {
             background: rgba(16, 18, 27, 0.7);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .skill-header {
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .skill-title {
-            font-weight: 600;
-            font-size: 1.2rem;
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(111, 66, 193, 0.2);
+        }
+        
+        .skill-card:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .skill-icon {
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(111, 66, 193, 0.1);
+            border: 2px solid rgba(111, 66, 193, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-circle img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        
+        .skill-info {
+            flex-grow: 1;
+        }
+        
+        .skill-info h3 {
+            margin: 0 0 5px;
+            font-size: 1rem;
             color: #fff;
-            margin: 0;
         }
         
-        .skill-tier {
-            background: linear-gradient(135deg, #6f42c1, #8e44ad);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 30px;
-            font-size: 0.9rem;
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
             font-weight: 600;
         }
         
-        .skill-notes {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            line-height: 1.5;
+        .tier-badge.lt1 { background: linear-gradient(135deg, #6c757d, #495057); color: white; }
+        .tier-badge.lt2 { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+        .tier-badge.lt3 { background: linear-gradient(135deg, #8f5931, #b56326); color: white; }
+        .tier-badge.lt4 { background: linear-gradient(135deg, #007bff, #17a2b8); color: white; }
+        .tier-badge.lt5 { background: linear-gradient(135deg, #6f42c1, #8e44ad); color: white; }
+        
+        .tier-badge.ht1 { background: linear-gradient(135deg, #adb5bd, #ced4da); color: #212529; }
+        .tier-badge.ht2 { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #212529; }
+        .tier-badge.ht3 { background: linear-gradient(135deg, #b56326, #dc3545); color: white; }
+        .tier-badge.ht4 { background: linear-gradient(135deg, #e83e8c, #dc3545); color: white; }
+        .tier-badge.ht5 { background: linear-gradient(135deg, #dc3545, #6f42c1); color: white; }
+        
+        .tier-badge.unranked { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+        
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: opacity 0.3s ease;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
         
         .team-section {
@@ -411,6 +470,72 @@
                 height: var(--random-height);
             }
         }
+        
+        @media (max-width: 767px) {
+            .profile-container {
+                padding: 20px;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                margin-bottom: 20px;
+            }
+            
+            .profile-actions {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skill-card {
+                margin-bottom: 15px;
+            }
+            
+            .avatar {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .user-details h1 {
+                font-size: 2rem;
+            }
+            
+            .user-bio {
+                font-size: 0.9rem;
+            }
+            
+            .profile-section {
+                padding: 15px;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 991px) {
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .skills-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
     </style>
 </head>
 <body class="galaxy-theme">
@@ -459,23 +584,37 @@
                 <div class="user-info">
                     <div class="avatar">
                         {% if user.profile_pic %}
-                        <img src="{{ url_for('static', filename=user.profile_pic) }}" alt="{{ user.username }}'s avatar">
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.profile_pic) }}" alt="{{ user.username }}'s avatar">
                         {% else %}
-                        <i class="fas fa-user"></i>
+                            <i class="fas fa-user"></i>
                         {% endif %}
                     </div>
                     <div class="user-details">
                         <h1>{{ user.username }}</h1>
-                        {% if user.full_name %}<p>{{ user.full_name }}</p>{% endif %}
+                        <p>{{ user.name }}</p>
+                        {% if user.bio %}
+                            <div class="user-bio">
+                                <p>{{ user.bio }}</p>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="profile-actions">
-                    <a href="{{ url_for('mail_compose', recipient_id=user.id) }}" class="cosmic-btn primary">
-                        <i class="fas fa-envelope"></i> Send Message
-                    </a>
-                    <a href="{{ url_for('teams') }}" class="cosmic-btn secondary">
-                        <i class="fas fa-users"></i> View Teams
-                    </a>
+                    {% if current_user.is_authenticated and current_user.id != user.id %}
+                        {% if is_following %}
+                            <form action="{{ url_for('unfollow_user', user_id=user.id) }}" method="post">
+                                <button type="submit" class="cosmic-btn secondary"><i class="fas fa-user-minus"></i> Unfollow</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('follow_user', user_id=user.id) }}" method="post">
+                                <button type="submit" class="cosmic-btn primary"><i class="fas fa-user-plus"></i> Follow</button>
+                            </form>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('send_message', recipient_id=user.id) }}" class="cosmic-btn secondary">
+                            <i class="fas fa-envelope"></i> Message
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             
@@ -511,66 +650,90 @@
             
             <div class="profile-section">
                 <h2 class="section-title">Skills</h2>
-                <div class="skill-grid">
-                    {% if user.nethpot_tier %}
-                    <div class="skill-card">
-                        <div class="skill-header">
-                            <h3 class="skill-title">Nether Potions</h3>
-                            <span class="skill-tier">{{ user.nethpot_tier }}</span>
+                <div class="skills-grid">
+                    <!-- NPOT Skill -->
+                    <div class="skill-card" data-skill="npot">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/neth-op.svg') }}" alt="NPOT"></div>
                         </div>
-                        {% if user.nethpot_notes %}
-                        <p class="skill-notes">{{ user.nethpot_notes }}</p>
-                        {% endif %}
+                        <div class="skill-info">
+                            <h3>NPOT</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.npot_tier else user.npot_tier|lower }}">
+                                <p>{{ user.npot_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Nether Pot - {{ user.npot_tier or 'Unranked' }}</span>
                     </div>
-                    {% endif %}
                     
-                    {% if user.uhc_tier %}
-                    <div class="skill-card">
-                        <div class="skill-header">
-                            <h3 class="skill-title">UHC</h3>
-                            <span class="skill-tier">{{ user.uhc_tier }}</span>
+                    <!-- UHC Skill -->
+                    <div class="skill-card" data-skill="uhc">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/uhc.svg') }}" alt="UHC"></div>
                         </div>
-                        {% if user.uhc_notes %}
-                        <p class="skill-notes">{{ user.uhc_notes }}</p>
-                        {% endif %}
+                        <div class="skill-info">
+                            <h3>UHC</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.uhc_tier else user.uhc_tier|lower }}">
+                                <p>{{ user.uhc_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Ultra Hardcore - {{ user.uhc_tier or 'Unranked' }}</span>
                     </div>
-                    {% endif %}
                     
-                    {% if user.cpvp_tier %}
-                    <div class="skill-card">
-                        <div class="skill-header">
-                            <h3 class="skill-title">Crystal PVP</h3>
-                            <span class="skill-tier">{{ user.cpvp_tier }}</span>
+                    <!-- CPVP Skill -->
+                    <div class="skill-card" data-skill="cpvp">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/cpvp.svg') }}" alt="CPVP"></div>
                         </div>
-                        {% if user.cpvp_notes %}
-                        <p class="skill-notes">{{ user.cpvp_notes }}</p>
-                        {% endif %}
+                        <div class="skill-info">
+                            <h3>CPVP</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.cpvp_tier else user.cpvp_tier|lower }}">
+                                <p>{{ user.cpvp_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Crystal PVP - {{ user.cpvp_tier or 'Unranked' }}</span>
                     </div>
-                    {% endif %}
                     
-                    {% if user.sword_tier %}
-                    <div class="skill-card">
-                        <div class="skill-header">
-                            <h3 class="skill-title">Sword PVP</h3>
-                            <span class="skill-tier">{{ user.sword_tier }}</span>
+                    <!-- SWORD Skill -->
+                    <div class="skill-card" data-skill="sword">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/sword.svg') }}" alt="SWORD"></div>
                         </div>
-                        {% if user.sword_notes %}
-                        <p class="skill-notes">{{ user.sword_notes }}</p>
-                        {% endif %}
+                        <div class="skill-info">
+                            <h3>SWORD</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.sword_tier else user.sword_tier|lower }}">
+                                <p>{{ user.sword_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Sword Combat - {{ user.sword_tier or 'Unranked' }}</span>
                     </div>
-                    {% endif %}
                     
-                    {% if user.smp_tier %}
-                    <div class="skill-card">
-                        <div class="skill-header">
-                            <h3 class="skill-title">SMP</h3>
-                            <span class="skill-tier">{{ user.smp_tier }}</span>
+                    <!-- AXE Skill -->
+                    <div class="skill-card" data-skill="axe">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/axe.svg') }}" alt="AXE"></div>
                         </div>
-                        {% if user.smp_notes %}
-                        <p class="skill-notes">{{ user.smp_notes }}</p>
-                        {% endif %}
+                        <div class="skill-info">
+                            <h3>AXE</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.axe_tier else user.axe_tier|lower }}">
+                                <p>{{ user.axe_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Axe Combat - {{ user.axe_tier or 'Unranked' }}</span>
                     </div>
-                    {% endif %}
+                    
+                    <!-- SMP Skill -->
+                    <div class="skill-card" data-skill="smp">
+                        <div class="skill-icon">
+                            <div class="icon-circle"><img src="{{ url_for('static', filename='img/smp.svg') }}" alt="SMP"></div>
+                        </div>
+                        <div class="skill-info">
+                            <h3>SMP</h3>
+                            <div class="tier-badge {{ 'unranked' if not user.smp_tier else user.smp_tier|lower }}">
+                                <p>{{ user.smp_tier or 'Unranked' }}</p>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">Survival Multiplayer - {{ user.smp_tier or 'Unranked' }}</span>
+                    </div>
                 </div>
             </div>
             

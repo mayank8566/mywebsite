@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g, abort, send_file
 import sqlite3
 import os
 import hashlib
@@ -8,23 +8,34 @@ import base64
 from datetime import datetime, timedelta
 import logging
 from logging.handlers import RotatingFileHandler
+import shutil
+import json
+import time
+import re
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)  # Generate a random secret key
+app.secret_key = 'cosmicteamssecretkey'  # Replace with a strong secret in production
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload size
 
 # Configure session to be more persistent
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Sessions last for 7 days
 app.config['SESSION_PERMANENT'] = True
 
-# Database setup
-DB_PATH = 'database.db'
+# Database configuration - Use persistent disk on Render
+is_render = os.environ.get('RENDER') == 'true'
+DB_DIR = '/data' if is_render else '.'
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
+
+# Upload directories configuration
 UPLOAD_FOLDER = 'static/uploads/profile_pics'
 UPLOAD_FOLDER_MUSIC = 'static/uploads/profile_music'
 UPLOAD_FOLDER_TEAM_LOGOS = 'static/uploads/team_logos'
 
-# Create upload directories if they don't exist
+# Create necessary directories
+if is_render and not os.path.exists(DB_DIR):
+    os.makedirs(DB_DIR, exist_ok=True)
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 if not os.path.exists(UPLOAD_FOLDER_MUSIC):
@@ -56,66 +67,107 @@ def hash_password(password):
 
 def init_db():
     """Initialize database and tables"""
+    # Print a message so we know when this happens
+    print("Initializing database (creating tables if they don't exist)")
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Create users table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        full_name TEXT,
-        bio TEXT,
-        location TEXT,
-        website TEXT,
-        profile_pic TEXT,
-        profile_music TEXT,
-        is_admin INTEGER DEFAULT 0,
-        tier TEXT,
-        nethpot_tier TEXT,
-        nethpot_notes TEXT,
-        uhc_tier TEXT,
-        uhc_notes TEXT,
-        cpvp_tier TEXT,
-        cpvp_notes TEXT,
-        sword_tier TEXT,
-        sword_notes TEXT,
-        smp_tier TEXT,
-        smp_notes TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        can_create_team INTEGER DEFAULT 0,
-        is_banned INTEGER DEFAULT 0,
-        ban_reason TEXT
-    )
-    ''')
+    # Check if the users table already exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchone()
     
-    # Create teams table if it doesn't exist
+    if not table_exists:
+        print("Creating users table for the first time")
+        # Create users table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            full_name TEXT,
+            bio TEXT,
+            profile_pic TEXT,
+            location TEXT,
+            website TEXT,
+            is_admin BOOLEAN DEFAULT 0,
+            is_verified BOOLEAN DEFAULT 0,
+            can_create_team BOOLEAN DEFAULT 1,
+            is_banned BOOLEAN DEFAULT 0,
+            tier TEXT,
+            nethpot_tier TEXT,
+            nethpot_notes TEXT,
+            uhc_tier TEXT,
+            uhc_notes TEXT,
+            cpvp_tier TEXT,
+            cpvp_notes TEXT,
+            sword_tier TEXT,
+            sword_notes TEXT,
+            smp_tier TEXT,
+            smp_notes TEXT,
+            axe_tier TEXT,
+            npot_tier TEXT,
+            profile_music TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(username, email)
+        )
+        ''')
+        
+        # Create initial admin user if this is a new database
+        admin_password_hash = hash_password(ADMIN_PASSWORD)
+        try:
+            cursor.execute('''
+            INSERT INTO users (username, email, password, is_admin, is_verified, can_create_team)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''', ('admin', 'admin@example.com', admin_password_hash, 1, 1, 1))
+            print("Created initial admin user")
+        except sqlite3.IntegrityError:
+            # Admin user likely already exists
+            pass
+    else:
+        print("Users table already exists, checking for required columns")
+        # Ensure all required columns exist
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        # Add any missing columns that should exist
+        required_columns = ['npot_tier', 'uhc_tier', 'cpvp_tier', 'sword_tier', 'axe_tier', 'smp_tier', 'profile_music']
+        
+        missing_columns = []
+        for column in required_columns:
+            if column not in columns:
+                missing_columns.append(column)
+                print(f"Adding missing column: {column}")
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} TEXT")
+        
+        if 'npot_tier' in missing_columns and 'nethpot_tier' in columns:
+            print("Mapping nethpot_tier to npot_tier")
+            cursor.execute("UPDATE users SET npot_tier = nethpot_tier WHERE nethpot_tier IS NOT NULL")
+            
+        if missing_columns:
+            print(f"Added {len(missing_columns)} missing columns: {missing_columns}")
+    
+    # Other tables - only create if they don't exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS teams (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
         description TEXT,
         logo TEXT,
-        rules TEXT,
-        email TEXT,
-        discord TEXT,
-        website TEXT,
+        points INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        points INTEGER DEFAULT 0
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
     
-    # Create team_members table if it doesn't exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS team_members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER,
         user_id INTEGER,
-        is_leader INTEGER DEFAULT 0,
-        role TEXT DEFAULT 'member',
+        is_leader BOOLEAN DEFAULT 0,
         joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (team_id) REFERENCES teams (id),
         FOREIGN KEY (user_id) REFERENCES users (id),
@@ -123,38 +175,38 @@ def init_db():
     )
     ''')
     
-    # Check if role column exists in team_members table
-    try:
-        cursor.execute("SELECT role FROM team_members LIMIT 1")
-    except:
-        # Add role column if it doesn't exist
-        cursor.execute("ALTER TABLE team_members ADD COLUMN role TEXT DEFAULT 'member'")
-    
-    # Check if profile_music column exists in users table
-    try:
-        cursor.execute("SELECT profile_music FROM users LIMIT 1")
-    except:
-        # Add profile_music column if it doesn't exist
-        cursor.execute("ALTER TABLE users ADD COLUMN profile_music TEXT")
-        print("Added profile_music column to users table")
-    
-    # Check if updated_at column exists in users table
-    try:
-        cursor.execute("SELECT updated_at FROM users LIMIT 1")
-    except:
-        # Add updated_at column if it doesn't exist
-        # SQLite doesn't allow DEFAULT CURRENT_TIMESTAMP when adding a column
-        cursor.execute("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP")
-        # Update all existing rows to set updated_at to current time
-        cursor.execute("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL")
-        print("Added updated_at column to users table")
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS mail (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender_id INTEGER,
+        recipient_id INTEGER,
+        subject TEXT,
+        content TEXT,
+        is_read BOOLEAN DEFAULT 0,
+        mail_type TEXT DEFAULT 'message',
+        related_id INTEGER,
+        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (sender_id) REFERENCES users (id),
+        FOREIGN KEY (recipient_id) REFERENCES users (id)
+    )
+    ''')
     
     conn.commit()
     conn.close()
+    print("Database initialization completed")
+
+def get_db():
+    """Get a database connection"""
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DB_PATH)
+        db.row_factory = sqlite3.Row
+    return db
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)  # Generate a random secret key
+app.secret_key = 'cosmicteamssecretkey'  # Replace with a strong secret in production
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload size
 
 # Configure session to be more persistent
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -493,15 +545,19 @@ def send_team_invitation(sender_id, recipient_id, team_id):
     return mail_id
 
 def get_unread_mail_count(user_id):
-    """Get count of unread mail for a user"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    """Get the count of unread mail for a user"""
+    if not user_id:
+        return 0
     
-    cursor.execute('SELECT COUNT(*) FROM mail WHERE recipient_id = ? AND is_read = 0', (user_id,))
-    count = cursor.fetchone()[0]
-    
-    conn.close()
-    return count
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM mail WHERE recipient_id = ? AND is_read = 0", (user_id,))
+        count = cursor.fetchone()[0]
+        return count
+    except Exception as e:
+        print(f"Error getting unread mail count: {str(e)}")
+        return 0
 
 def send_mail(sender_id, recipient_id, subject, content, mail_type='message', related_id=None):
     """Send a mail message from one user to another"""
@@ -2281,34 +2337,106 @@ def kick_team_member(team_id, user_id):
 @app.route('/user/<int:user_id>')
 def view_user(user_id):
     """View another user's profile"""
-    # Check if user is trying to view their own profile
-    if session.get('user_id') == user_id:
-        return redirect(url_for('profile'))
+    try:
+        # Check if user is trying to view their own profile
+        if session.get('user_id') == user_id:
+            return redirect(url_for('profile'))
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+        # Log for debugging
+        print(f"Viewing user profile for user_id: {user_id}")
 
-    # Get user details (excluding sensitive information)
-    cursor.execute('''
-        SELECT id, username, profile_pic, profile_music, bio, location, website, full_name,
-               tier, nethpot_tier, nethpot_notes, uhc_tier, uhc_notes, cpvp_tier, cpvp_notes,
-               sword_tier, sword_notes, smp_tier, smp_notes
-        FROM users
-        WHERE id = ?
-    ''', (user_id,))
-    user = cursor.fetchone()
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
 
-    if not user:
+        # Check if all required columns exist and create them if they don't
+        print("Checking database schema...")
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        print(f"Current columns: {columns}")
+        
+        # Add any missing columns
+        missing_columns = []
+        required_columns = ['npot_tier', 'uhc_tier', 'cpvp_tier', 'sword_tier', 'axe_tier', 'smp_tier']
+        
+        for column in required_columns:
+            if column not in columns:
+                missing_columns.append(column)
+                print(f"Adding missing column: {column}")
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} TEXT")
+        
+        if 'npot_tier' in missing_columns and 'nethpot_tier' in columns:
+            print("Mapping nethpot_tier to npot_tier")
+            cursor.execute("UPDATE users SET npot_tier = nethpot_tier WHERE nethpot_tier IS NOT NULL")
+            
+        if missing_columns:
+            conn.commit()
+            print(f"Added {len(missing_columns)} missing columns: {missing_columns}")
+        
+        # Get user details with explicit list of columns to fetch
+        print("Fetching user data...")
+        try:
+            cursor.execute('''
+                SELECT id, username, profile_pic, profile_music, bio, location, website, 
+                       full_name, tier, npot_tier, uhc_tier, cpvp_tier, sword_tier, 
+                       axe_tier, smp_tier, nethpot_tier
+                FROM users
+                WHERE id = ?
+            ''', (user_id,))
+            user_data = cursor.fetchone()
+        except sqlite3.OperationalError as e:
+            print(f"Database error: {str(e)}")
+            # Try a simpler query if the specific columns fail
+            cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+            user_data = cursor.fetchone()
+
+        if not user_data:
+            conn.close()
+            print(f"User not found: {user_id}")
+            flash('User not found', 'error')
+            return redirect(url_for('teams'))
+            
+        # Convert to dict to allow attribute assignment
+        user = dict(user_data)
+        print(f"User data keys: {user.keys()}")
+        
+        # Ensure npot_tier is set correctly
+        if not user.get('npot_tier') and user.get('nethpot_tier'):
+            user['npot_tier'] = user['nethpot_tier']
+            print(f"Setting npot_tier from nethpot_tier: {user['npot_tier']}")
+        
+        # Set default values for tier fields
+        for field in required_columns:
+            if field not in user or user[field] is None or user[field] == '':
+                user[field] = 'Unranked'
+                print(f"Setting default value for {field}: Unranked")
+
+        # Get user's team information
+        user_team = get_user_team(user_id)
+        
+        # Get unread mail count safely
+        unread_count = 0
+        if session.get('user_id'):
+            try:
+                unread_count = get_unread_mail_count(session.get('user_id'))
+            except Exception as e:
+                print(f"Error getting unread mail count: {str(e)}")
+                # Default to 0 if there's an error
+
         conn.close()
-        flash('User not found', 'error')
-        return redirect(url_for('teams'))
-
-    # Get user's team information
-    user_team = get_user_team(user_id)
-
-    return render_template('view_user.html', user=user, user_team=user_team,
-                          unread_mail_count=get_unread_mail_count(session.get('user_id')))
+        print("Successfully prepared user data for rendering")
+        
+        # Instead of relying on the template to handle None or missing values,
+        # we've already set defaults for all the tier fields above
+        return render_template('view_user.html', user=user, user_team=user_team,
+                            unread_mail_count=unread_count)
+                            
+    except Exception as e:
+        print(f"Error in view_user: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # Return a user-friendly error page
+        return render_template('error.html', error_message=f"An error occurred while loading the user profile: {str(e)}"), 500
 
 @app.route('/teams/<int:team_id>/promote/<int:user_id>', methods=['POST'])
 @login_required
@@ -2524,6 +2652,401 @@ def reinit_db():
 # Initialize database on startup
 with app.app_context():
     init_db()
+
+@app.route('/run_migrations')
+@login_required
+def run_migrations():
+    """Run database migrations (admin only)"""
+    if not session.get('is_admin'):
+        flash('Access denied', 'error')
+        return redirect(url_for('main'))
+        
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Check if axe_tier column exists
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        migrations_run = []
+        
+        # Add axe_tier column if it doesn't exist
+        if 'axe_tier' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN axe_tier TEXT")
+            migrations_run.append("Added axe_tier column to users table")
+            
+        # Map nethpot_tier to npot_tier for existing users if npot_tier doesn't exist
+        if 'npot_tier' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN npot_tier TEXT")
+            cursor.execute("UPDATE users SET npot_tier = nethpot_tier WHERE nethpot_tier IS NOT NULL")
+            migrations_run.append("Added npot_tier column and mapped values from nethpot_tier")
+            
+        conn.commit()
+        conn.close()
+        
+        if migrations_run:
+            flash(f"Migrations completed: {', '.join(migrations_run)}", 'success')
+        else:
+            flash("No migrations were necessary.", 'info')
+            
+        return redirect(url_for('admin_dashboard'))
+    except Exception as e:
+        flash(f"Migration error: {str(e)}", 'error')
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/update_skill_tiers', methods=['POST'])
+@login_required
+def update_skill_tiers():
+    """Update user's skill tiers"""
+    try:
+        user_id = session.get('user_id')
+        
+        # Get tier values from form
+        npot_tier = request.form.get('npot_tier', '').strip().upper()
+        uhc_tier = request.form.get('uhc_tier', '').strip().upper()
+        cpvp_tier = request.form.get('cpvp_tier', '').strip().upper()
+        sword_tier = request.form.get('sword_tier', '').strip().upper()
+        axe_tier = request.form.get('axe_tier', '').strip().upper()
+        smp_tier = request.form.get('smp_tier', '').strip().upper()
+        
+        # Validate tier values
+        valid_tiers = ['LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'HT1', 'HT2', 'HT3', 'HT4', 'HT5']
+        
+        # Set to None if not valid
+        if npot_tier not in valid_tiers:
+            npot_tier = None
+        if uhc_tier not in valid_tiers:
+            uhc_tier = None
+        if cpvp_tier not in valid_tiers:
+            cpvp_tier = None
+        if sword_tier not in valid_tiers:
+            sword_tier = None
+        if axe_tier not in valid_tiers:
+            axe_tier = None
+        if smp_tier not in valid_tiers:
+            smp_tier = None
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Ensure all necessary columns exist
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        missing_columns = []
+        for column_name in ['npot_tier', 'axe_tier']:
+            if column_name not in columns:
+                missing_columns.append(column_name)
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {column_name} TEXT")
+        
+        if missing_columns:
+            conn.commit()
+        
+        # Update user's tiers
+        cursor.execute('''
+            UPDATE users SET
+                npot_tier = ?,
+                uhc_tier = ?,
+                cpvp_tier = ?,
+                sword_tier = ?,
+                axe_tier = ?,
+                smp_tier = ?
+            WHERE id = ?
+        ''', (npot_tier, uhc_tier, cpvp_tier, sword_tier, axe_tier, smp_tier, user_id))
+        
+        # Also update nethpot_tier for backward compatibility
+        if npot_tier:
+            cursor.execute('UPDATE users SET nethpot_tier = ? WHERE id = ?', (npot_tier, user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        flash('Your skill tiers have been updated successfully!', 'success')
+        return redirect(url_for('profile'))
+        
+    except Exception as e:
+        print(f"Error updating skill tiers: {str(e)}")
+        flash('An error occurred while updating your skill tiers.', 'error')
+        return redirect(url_for('profile'))
+
+@app.route('/debug/schema')
+def debug_schema():
+    """Debug route to check database schema"""
+    if not session.get('is_admin'):
+        flash('Access denied', 'error')
+        return redirect(url_for('main'))
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get schema info
+        cursor.execute("PRAGMA table_info(users)")
+        columns = cursor.fetchall()
+        
+        # Get sample data
+        cursor.execute("SELECT id, username, npot_tier, uhc_tier, cpvp_tier, sword_tier, axe_tier, smp_tier FROM users LIMIT 5")
+        users = cursor.fetchall()
+        
+        conn.close()
+        
+        html = '<html><head><title>Database Debug</title></head><body>'
+        html += '<h1>Database Schema</h1>'
+        html += '<table border="1"><tr><th>CID</th><th>Name</th><th>Type</th><th>NotNull</th><th>Default</th><th>PK</th></tr>'
+        
+        for col in columns:
+            html += f'<tr><td>{col[0]}</td><td>{col[1]}</td><td>{col[2]}</td><td>{col[3]}</td><td>{col[4]}</td><td>{col[5]}</td></tr>'
+        
+        html += '</table>'
+        
+        html += '<h1>Sample User Data</h1>'
+        html += '<table border="1"><tr><th>ID</th><th>Username</th><th>NPOT</th><th>UHC</th><th>CPVP</th><th>SWORD</th><th>AXE</th><th>SMP</th></tr>'
+        
+        for user in users:
+            html += f'<tr><td>{user["id"]}</td><td>{user["username"]}</td>'
+            html += f'<td>{user["npot_tier"] or "Unranked"}</td>'
+            html += f'<td>{user["uhc_tier"] or "Unranked"}</td>'
+            html += f'<td>{user["cpvp_tier"] or "Unranked"}</td>'
+            html += f'<td>{user["sword_tier"] or "Unranked"}</td>'
+            html += f'<td>{user["axe_tier"] or "Unranked"}</td>'
+            html += f'<td>{user["smp_tier"] or "Unranked"}</td></tr>'
+        
+        html += '</table>'
+        html += '</body></html>'
+        
+        return html
+    except Exception as e:
+        return f'Error: {str(e)}'
+
+@app.route('/admin/backup-db-page')
+def backup_database_page():
+    # Check if user is admin
+    if not session.get('user_id') or not session.get('is_admin'):
+        flash('You do not have permission to access this page.', 'error')
+        return redirect(url_for('main'))
+    
+    # Pass unread mail count to template
+    unread_mail_count = get_unread_mail_count(session.get('user_id')) if session.get('user_id') else 0
+    
+    return render_template('backup_db.html', unread_mail_count=unread_mail_count)
+
+@app.route('/admin/restore-db-page')
+def restore_database_page():
+    # Check if user is admin
+    if not session.get('user_id') or not session.get('is_admin'):
+        flash('You do not have permission to access this page.', 'error')
+        return redirect(url_for('main'))
+    
+    # Pass unread mail count to template
+    unread_mail_count = get_unread_mail_count(session.get('user_id')) if session.get('user_id') else 0
+    
+    return render_template('restore_db.html', unread_mail_count=unread_mail_count)
+
+@app.route('/admin/backup-db', methods=['POST'])
+def backup_database():
+    # Check if user is admin
+    if not session.get('user_id') or not session.get('is_admin'):
+        flash('You do not have permission to perform this action.', 'error')
+        return redirect(url_for('main'))
+    
+    try:
+        # Create backups directory if it doesn't exist
+        backup_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        # Generate timestamp for the backup file
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        db_backup_path = os.path.join(backup_dir, f'cosmic_teams_backup_{timestamp}.db')
+        sql_backup_path = os.path.join(backup_dir, f'cosmic_teams_backup_{timestamp}.sql')
+        
+        # Copy the database file
+        shutil.copy2(DB_PATH, db_backup_path)
+        
+        # Create SQL dump
+        connection = sqlite3.connect(DB_PATH)
+        with open(sql_backup_path, 'w') as f:
+            # Get schema
+            cursor = connection.cursor()
+            cursor.execute("SELECT sql FROM sqlite_master WHERE type='table'")
+            schemas = cursor.fetchall()
+            
+            for schema in schemas:
+                if schema[0] is not None:  # Exclude sqlite_sequence and other system tables
+                    f.write(f"{schema[0]};\n\n")
+            
+            # Get data
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = cursor.fetchall()
+            
+            for table in tables:
+                table_name = table[0]
+                if not table_name.startswith('sqlite_'):
+                    cursor.execute(f"SELECT * FROM {table_name}")
+                    rows = cursor.fetchall()
+                    
+                    for row in rows:
+                        values = []
+                        for value in row:
+                            if value is None:
+                                values.append("NULL")
+                            elif isinstance(value, (int, float)):
+                                values.append(str(value))
+                            else:
+                                # Fix the string escaping syntax
+                                escaped_value = str(value).replace("'", "''")
+                                values.append(f"'{escaped_value}'")
+                        
+                        f.write(f"INSERT INTO {table_name} VALUES ({', '.join(values)});\n")
+                    f.write("\n")
+        
+        connection.close()
+        
+        # Flash success message and redirect
+        flash(f'Database backup created successfully. Files saved as cosmic_teams_backup_{timestamp}.db and cosmic_teams_backup_{timestamp}.sql', 'success')
+        return redirect(url_for('admin_dashboard'))
+    
+    except Exception as e:
+        flash(f'Failed to create database backup: {str(e)}', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/restore-db', methods=['POST'])
+def restore_database():
+    # Check if user is admin
+    if not session.get('user_id') or not session.get('is_admin'):
+        flash('You do not have permission to perform this action.', 'error')
+        return redirect(url_for('main'))
+    
+    # Check if the post request has the file part
+    if 'backup_file' not in request.files:
+        flash('No file part', 'error')
+        return redirect(url_for('restore_database_page'))
+    
+    file = request.files['backup_file']
+    
+    # If user does not select file, browser also submits an empty part without filename
+    if file.filename == '':
+        flash('No selected file', 'error')
+        return redirect(url_for('restore_database_page'))
+    
+    # Check confirmation
+    if request.form.get('confirm') != 'RESTORE':
+        flash('Please type "RESTORE" to confirm the database restoration.', 'error')
+        return redirect(url_for('restore_database_page'))
+    
+    try:
+        # Create temp directory if it doesn't exist
+        temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Get file extension
+        file_ext = os.path.splitext(file.filename)[1].lower()
+        
+        if file_ext == '.db':
+            # Save the file temporarily
+            temp_path = os.path.join(temp_dir, 'temp_restore.db')
+            file.save(temp_path)
+            
+            # Create a backup of the current database before restoring
+            backup_timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backups')
+            os.makedirs(backup_dir, exist_ok=True)
+            backup_path = os.path.join(backup_dir, f'pre_restore_backup_{backup_timestamp}.db')
+            
+            # Copy current database to backup
+            shutil.copy2(DB_PATH, backup_path)
+            
+            # Replace the current database with the uploaded one
+            # First make sure Flask isn't using the database
+            db = getattr(g, '_database', None)
+            if db is not None:
+                db.close()
+                g._database = None
+            
+            # Copy the uploaded file to replace the current database
+            shutil.copy2(temp_path, DB_PATH)
+            
+            # Clean up the temp file
+            os.remove(temp_path)
+            
+            flash('Database has been successfully restored from the uploaded file.', 'success')
+            
+        elif file_ext == '.sql':
+            # Save the file temporarily
+            temp_path = os.path.join(temp_dir, 'temp_restore.sql')
+            file.save(temp_path)
+            
+            # Create a backup of the current database before restoring
+            backup_timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backups')
+            os.makedirs(backup_dir, exist_ok=True)
+            backup_path = os.path.join(backup_dir, f'pre_restore_backup_{backup_timestamp}.db')
+            
+            # Copy current database to backup
+            shutil.copy2(DB_PATH, backup_path)
+            
+            # First make sure Flask isn't using the database
+            db = getattr(g, '_database', None)
+            if db is not None:
+                db.close()
+                g._database = None
+            
+            # Execute the SQL file
+            connection = sqlite3.connect(DB_PATH)
+            cursor = connection.cursor()
+            
+            with open(temp_path, 'r') as f:
+                sql_script = f.read()
+                # Split by semicolons but handle quoted semicolons properly
+                statements = []
+                current_statement = ''
+                in_quotes = False
+                quote_char = None
+                
+                for char in sql_script:
+                    if char in ["'", '"'] and (not in_quotes or quote_char == char):
+                        in_quotes = not in_quotes
+                        if in_quotes:
+                            quote_char = char
+                        else:
+                            quote_char = None
+                    
+                    if char == ';' and not in_quotes:
+                        if current_statement.strip():
+                            statements.append(current_statement.strip())
+                        current_statement = ''
+                    else:
+                        current_statement += char
+                
+                if current_statement.strip():
+                    statements.append(current_statement.strip())
+                
+                for statement in statements:
+                    try:
+                        cursor.execute(statement)
+                    except sqlite3.Error as e:
+                        print(f"Error executing SQL statement: {e}")
+                        print(f"Statement: {statement}")
+                        # Continue with other statements
+            
+            connection.commit()
+            connection.close()
+            
+            # Clean up the temp file
+            os.remove(temp_path)
+            
+            flash('Database has been successfully restored from the SQL file.', 'success')
+            
+        else:
+            flash('Invalid file type. Please upload a .db or .sql file.', 'error')
+            return redirect(url_for('restore_database_page'))
+        
+        return redirect(url_for('admin_dashboard'))
+    
+    except Exception as e:
+        flash(f'Failed to restore database: {str(e)}', 'error')
+        return redirect(url_for('restore_database_page'))
 
 # Run the application
 if __name__ == '__main__':

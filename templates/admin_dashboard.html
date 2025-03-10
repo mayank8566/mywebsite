@@ -458,6 +458,33 @@
                         </ul>
                     </div>
                 </div>
+
+                <!-- New Database Management Section -->
+                <div class="admin-section">
+                    <div class="admin-section-header">
+                        <h2>Database Management</h2>
+                    </div>
+                    
+                    <div class="admin-section-content">
+                        <div class="db-management">
+                            <div class="db-actions">
+                                <a href="{{ url_for('backup_database_page') }}" class="cosmic-btn">
+                                    <i class="fas fa-download"></i> Backup Database
+                                </a>
+                                <p class="small-text">Create a backup of the current database</p>
+                                
+                                <a href="{{ url_for('restore_database_page') }}" class="cosmic-btn danger-btn" style="margin-top: 20px;">
+                                    <i class="fas fa-upload"></i> Restore Database
+                                </a>
+                                <p class="small-text">Restore the database from a backup file</p>
+                                
+                                <div class="warning-notice" style="margin-top: 20px; padding: 15px; background: rgba(255, 65, 108, 0.1); border-radius: 8px; border: 1px solid rgba(255, 65, 108, 0.3);">
+                                    <p><i class="fas fa-exclamation-triangle" style="color: #ff416c;"></i> <strong>Important:</strong> Regular backups are recommended. When deploying to platforms like Render, database data may be lost as SQLite files are not preserved between deployments.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

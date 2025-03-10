@@ -1172,4 +1172,89 @@ select option {
         transform: scale(1);
         opacity: 1;
     }
+}
+
+/* Database Management Styles */
+.db-management {
+    padding: 10px 0;
+}
+
+.db-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.small-text {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.warning-notice {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 65, 108, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 65, 108, 0.3);
+}
+
+.danger-btn {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+}
+
+.danger-btn:hover {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    box-shadow: 0 8px 20px rgba(255, 65, 108, 0.4);
+}
+
+.warning-text {
+    padding: 15px;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    margin-bottom: 20px;
+}
+
+.warning-text.danger {
+    background: rgba(255, 65, 108, 0.1);
+    border: 1px solid rgba(255, 65, 108, 0.3);
+    color: #ff416c;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group small {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
 } 

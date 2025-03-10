@@ -12,103 +12,47 @@ A galaxy-themed web application for managing teams with beautiful animations and
 - Beautiful galaxy-themed animations and UI
 - Admin dashboard
 
-## Production Deployment
+## Deployment on Render
 
-### Option 1: Automated Deployment (Linux Only)
+This application is configured for automatic deployment on Render with persistent database storage.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/cosmic_teams.git
-   cd cosmic_teams
-   ```
+### How to deploy
 
-2. Run the deployment script (requires root privileges):
-   ```bash
-   sudo ./deploy.sh
-   ```
+1. Fork this repository to your GitHub account
+2. Create a new Web Service on Render:
+   - Connect your GitHub account
+   - Select the forked repository
+   - Render will automatically detect the `render.yaml` configuration
+   - Click "Create Web Service"
 
-3. Configure your domain name in the Nginx configuration:
-   ```bash
-   sudo nano /etc/nginx/sites-available/cosmic_teams
-   ```
+### Continuous Deployment
 
-4. Restart Nginx:
-   ```bash
-   sudo systemctl restart nginx
-   ```
+The application is set up to automatically deploy whenever you push changes to the main branch of your GitHub repository:
 
-### Option 2: Manual Deployment
+1. Make changes to your code locally
+2. Commit the changes to your local repository
+3. Push the changes to your GitHub repository
+4. Render will automatically detect the changes and redeploy your application
 
-#### Prerequisites
+### Database Persistence
 
-- Python 3.8 or higher
-- pip
-- virtualenv or venv
-- Nginx
-- Gunicorn
+The application uses a persistent disk on Render to store the SQLite database. This ensures that your data is preserved between deployments. 
 
-#### Installation Steps
+The admin dashboard includes a Database Management section where you can:
+- Create database backups
+- Restore the database from backups
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/cosmic_teams.git
-   cd cosmic_teams
-   ```
+It's recommended to create regular backups, especially before major changes or deployments.
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Local Development
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Initialize the database:
-   ```bash
-   python -c "from app import init_db; init_db()"
-   ```
-
-5. Configure the systemd service:
-   - Copy `cosmic_teams.service` to `/etc/systemd/system/`
-   - Edit paths if needed to match your installation directory
-   - Enable and start the service:
-     ```bash
-     sudo systemctl enable cosmic_teams
-     sudo systemctl start cosmic_teams
-     ```
-
-6. Configure Nginx:
-   - Copy `cosmic_teams_nginx.conf` to `/etc/nginx/sites-available/cosmic_teams`
-   - Update the server_name to your domain
-   - Create a symbolic link:
-     ```bash
-     sudo ln -s /etc/nginx/sites-available/cosmic_teams /etc/nginx/sites-enabled/
-     ```
-   - Restart Nginx:
-     ```bash
-     sudo systemctl restart nginx
-     ```
-
-7. (Optional) Set up SSL with Let's Encrypt:
-   ```bash
-   sudo apt-get install certbot python3-certbot-nginx
-   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-   ```
-
-## Development Setup
-
-For local development:
+To run the application locally:
 
 1. Clone the repository
-2. Set up a virtual environment and install dependencies from `requirements.txt`
-3. Run the application:
-   ```bash
-   python app.py
-   ```
-4. Visit http://localhost:5000 in your browser
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run the application: `python run.py`
+
+The application will be available at `http://localhost:5000`
 
 ## Troubleshooting
 

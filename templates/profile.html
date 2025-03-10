@@ -423,6 +423,248 @@
                 width: 100%;
             }
         }
+        
+        .tier-explanation-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tier-format-guide h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .tier-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .tier-example {
+            flex: 1;
+        }
+        
+        .tier-example p {
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .tier-icon-small {
+            width: 24px;
+            height: 24px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        /* Tier Input Styles */
+        .tier-input-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tier-input-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .tier-input-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-input-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .tier-input-label {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .tier-input-label img {
+            margin-right: 10px;
+        }
+        
+        .tier-input-field {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .tier-input-field input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .tier-input-field input:focus {
+            outline: none;
+            border-color: #6f42c1;
+            box-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
+        }
+        
+        .tier-input-field input.invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        @media (max-width: 767px) {
+            .tier-input-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .tier-input-label, .tier-input-field {
+                width: 100%;
+            }
+        }
+        
+        .quick-tier-selection {
+            background: rgba(16, 18, 27, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .quick-tier-selection h3 {
+            color: white;
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        
+        .quick-tier-selection p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .quick-tier-grid {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .quick-tier-row {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .quick-tier-row:last-child {
+            border-bottom: none;
+        }
+        
+        .quick-tier-cell {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            min-width: 40px;
+        }
+        
+        .quick-tier-cell:first-child {
+            flex: 2;
+            justify-content: flex-start;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .quick-tier-cell:last-child {
+            border-right: none;
+        }
+        
+        .header-cell {
+            background: rgba(111, 66, 193, 0.2);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        /* Responsive styles for mobile */
+        @media (max-width: 767px) {
+            .tier-examples {
+                flex-direction: column;
+            }
+            
+            .tier-example {
+                min-width: unset;
+            }
+            
+            .quick-tier-grid {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .quick-tier-row {
+                min-width: 800px;
+            }
+            
+            .quick-tier-cell {
+                min-width: 40px;
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+            
+            .quick-tier-cell:first-child {
+                min-width: 80px;
+            }
+            
+            .header-cell {
+                font-size: 0.75rem;
+            }
+            
+            .tier-explanation-box, .quick-tier-selection {
+                padding: 15px;
+            }
+        }
+        
+        /* Style for tier labels */
+        .tier-label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* LT Tiers */
+        .tier-lt1 { background: linear-gradient(135deg, #6c757d, #495057); color: white; }
+        .tier-lt2 { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+        .tier-lt3 { background: linear-gradient(135deg, #8f5931, #b56326); color: white; }
+        .tier-lt4 { background: linear-gradient(135deg, #007bff, #17a2b8); color: white; }
+        .tier-lt5 { background: linear-gradient(135deg, #6f42c1, #8e44ad); color: white; }
+        
+        /* HT Tiers */
+        .tier-ht1 { background: linear-gradient(135deg, #adb5bd, #ced4da); color: #212529; }
+        .tier-ht2 { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #212529; }
+        .tier-ht3 { background: linear-gradient(135deg, #b56326, #dc3545); color: white; }
+        .tier-ht4 { background: linear-gradient(135deg, #e83e8c, #dc3545); color: white; }
+        .tier-ht5 { background: linear-gradient(135deg, #dc3545, #6f42c1); color: white; }
     </style>
 </head>
 <body class="galaxy-theme">
@@ -526,19 +768,9 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="website">Website</label>
-                            <input type="url" id="website" name="website" value="{{ user.website if user.website else '' }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="tier">Gameplay Tier</label>
-                            <select id="tier" name="tier">
-                                <option value="none" {% if not user.tier or user.tier == 'none' %}selected{% endif %}>Select a Tier</option>
-                                <option value="npot" {% if user.tier == 'npot' %}selected{% endif %}>Npot</option>
-                                <option value="uhc" {% if user.tier == 'uhc' %}selected{% endif %}>UHC</option>
-                                <option value="sword" {% if user.tier == 'sword' %}selected{% endif %}>Sword</option>
-                            </select>
-                            <p class="form-help">Select your preferred gameplay tier.</p>
+                            <label for="website">Website (Optional)</label>
+                            <input type="text" id="website" name="website" value="{{ user.website or '' }}" placeholder="Your website URL">
+                            <p class="form-help">Your personal website or social media profile.</p>
                         </div>
                         
                         <div class="form-group">
@@ -788,173 +1020,351 @@
                 <!-- Minecraft Tiers Section -->
                 <div class="profile-section" id="minecraft-tiers">
                     <h2>Minecraft Skill Tiers</h2>
-                    <p class="section-description">Set your skill level for different Minecraft game modes.</p>
+                    <p class="section-description">Set your skill levels for different gameplay aspects. These will be displayed on your public profile.</p>
                     
-                    <div class="minecraft-tiers-container">
-                        <form action="{{ url_for('profile_update') }}" method="post" class="tiers-form">
-                            <div class="tier-categories">
-                                <div class="tier-category">
-                                    <h3>Nethpot</h3>
-                                    <div class="tier-selection">
-                                        <div class="tier-options">
-                                            <label class="tier-option">
-                                                <input type="radio" name="nethpot_tier" value="S" {% if user.nethpot_tier == 'S' %}checked{% endif %}>
-                                                <span class="tier-label tier-s">S</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="nethpot_tier" value="A" {% if user.nethpot_tier == 'A' %}checked{% endif %}>
-                                                <span class="tier-label tier-a">A</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="nethpot_tier" value="B" {% if user.nethpot_tier == 'B' %}checked{% endif %}>
-                                                <span class="tier-label tier-b">B</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="nethpot_tier" value="C" {% if user.nethpot_tier == 'C' %}checked{% endif %}>
-                                                <span class="tier-label tier-c">C</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="nethpot_tier" value="D" {% if user.nethpot_tier == 'D' %}checked{% endif %}>
-                                                <span class="tier-label tier-d">D</span>
-                                            </label>
-                                        </div>
-                                        <div class="tier-notes">
-                                            <input type="text" name="nethpot_notes" placeholder="Add notes about your Nethpot skills..." value="{{ user.nethpot_notes or '' }}">
-                                        </div>
+                    <div class="tier-explanation-box">
+                        <div class="tier-format-guide">
+                            <h3>Tier Format Guide</h3>
+                            <div class="tier-examples">
+                                <div class="tier-example">
+                                    <span class="tier-label tier-lt1">LT1</span>
+                                    <span class="tier-label tier-lt2">LT2</span>
+                                    <span class="tier-label tier-lt3">LT3</span>
+                                    <span class="tier-label tier-lt4">LT4</span>
+                                    <span class="tier-label tier-lt5">LT5</span>
+                                    <p>Lower Tier (LT) - Beginner to Intermediate skill level</p>
+                                </div>
+                                <div class="tier-example">
+                                    <span class="tier-label tier-ht1">HT1</span>
+                                    <span class="tier-label tier-ht2">HT2</span>
+                                    <span class="tier-label tier-ht3">HT3</span>
+                                    <span class="tier-label tier-ht4">HT4</span>
+                                    <span class="tier-label tier-ht5">HT5</span>
+                                    <p>Higher Tier (HT) - Advanced to Professional skill level</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ url_for('update_skill_tiers') }}" method="post" class="skill-tiers-form">
+                        <div class="tier-input-section">
+                            <h3>Enter Your Skill Tiers</h3>
+                            <p>Enter your tier level using the format "LT1-5" or "HT1-5" for each game mode:</p>
+                            
+                            <div class="tier-input-grid">
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/neth-op.svg') }}" alt="NPOT" class="tier-icon-small">
+                                        <span>NPOT (Nether Pot)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="npot_tier" value="{{ user.npot_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
                                     </div>
                                 </div>
                                 
-                                <div class="tier-category">
-                                    <h3>UHC</h3>
-                                    <div class="tier-selection">
-                                        <div class="tier-options">
-                                            <label class="tier-option">
-                                                <input type="radio" name="uhc_tier" value="S" {% if user.uhc_tier == 'S' %}checked{% endif %}>
-                                                <span class="tier-label tier-s">S</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="uhc_tier" value="A" {% if user.uhc_tier == 'A' %}checked{% endif %}>
-                                                <span class="tier-label tier-a">A</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="uhc_tier" value="B" {% if user.uhc_tier == 'B' %}checked{% endif %}>
-                                                <span class="tier-label tier-b">B</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="uhc_tier" value="C" {% if user.uhc_tier == 'C' %}checked{% endif %}>
-                                                <span class="tier-label tier-c">C</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="uhc_tier" value="D" {% if user.uhc_tier == 'D' %}checked{% endif %}>
-                                                <span class="tier-label tier-d">D</span>
-                                            </label>
-                                        </div>
-                                        <div class="tier-notes">
-                                            <input type="text" name="uhc_notes" placeholder="Add notes about your UHC skills..." value="{{ user.uhc_notes or '' }}">
-                                        </div>
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/uhc.svg') }}" alt="UHC" class="tier-icon-small">
+                                        <span>UHC (Ultra Hardcore)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="uhc_tier" value="{{ user.uhc_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
                                     </div>
                                 </div>
                                 
-                                <div class="tier-category">
-                                    <h3>CPVP</h3>
-                                    <div class="tier-selection">
-                                        <div class="tier-options">
-                                            <label class="tier-option">
-                                                <input type="radio" name="cpvp_tier" value="S" {% if user.cpvp_tier == 'S' %}checked{% endif %}>
-                                                <span class="tier-label tier-s">S</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="cpvp_tier" value="A" {% if user.cpvp_tier == 'A' %}checked{% endif %}>
-                                                <span class="tier-label tier-a">A</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="cpvp_tier" value="B" {% if user.cpvp_tier == 'B' %}checked{% endif %}>
-                                                <span class="tier-label tier-b">B</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="cpvp_tier" value="C" {% if user.cpvp_tier == 'C' %}checked{% endif %}>
-                                                <span class="tier-label tier-c">C</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="cpvp_tier" value="D" {% if user.cpvp_tier == 'D' %}checked{% endif %}>
-                                                <span class="tier-label tier-d">D</span>
-                                            </label>
-                                        </div>
-                                        <div class="tier-notes">
-                                            <input type="text" name="cpvp_notes" placeholder="Add notes about your CPVP skills..." value="{{ user.cpvp_notes or '' }}">
-                                        </div>
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/cpvp.svg') }}" alt="CPVP" class="tier-icon-small">
+                                        <span>CPVP (Crystal PVP)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="cpvp_tier" value="{{ user.cpvp_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
                                     </div>
                                 </div>
                                 
-                                <div class="tier-category">
-                                    <h3>Sword</h3>
-                                    <div class="tier-selection">
-                                        <div class="tier-options">
-                                            <label class="tier-option">
-                                                <input type="radio" name="sword_tier" value="S" {% if user.sword_tier == 'S' %}checked{% endif %}>
-                                                <span class="tier-label tier-s">S</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="sword_tier" value="A" {% if user.sword_tier == 'A' %}checked{% endif %}>
-                                                <span class="tier-label tier-a">A</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="sword_tier" value="B" {% if user.sword_tier == 'B' %}checked{% endif %}>
-                                                <span class="tier-label tier-b">B</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="sword_tier" value="C" {% if user.sword_tier == 'C' %}checked{% endif %}>
-                                                <span class="tier-label tier-c">C</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="sword_tier" value="D" {% if user.sword_tier == 'D' %}checked{% endif %}>
-                                                <span class="tier-label tier-d">D</span>
-                                            </label>
-                                        </div>
-                                        <div class="tier-notes">
-                                            <input type="text" name="sword_notes" placeholder="Add notes about your Sword skills..." value="{{ user.sword_notes or '' }}">
-                                        </div>
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/sword.svg') }}" alt="SWORD" class="tier-icon-small">
+                                        <span>SWORD (Sword Combat)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="sword_tier" value="{{ user.sword_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
                                     </div>
                                 </div>
                                 
-                                <div class="tier-category">
-                                    <h3>SMP</h3>
-                                    <div class="tier-selection">
-                                        <div class="tier-options">
-                                            <label class="tier-option">
-                                                <input type="radio" name="smp_tier" value="S" {% if user.smp_tier == 'S' %}checked{% endif %}>
-                                                <span class="tier-label tier-s">S</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="smp_tier" value="A" {% if user.smp_tier == 'A' %}checked{% endif %}>
-                                                <span class="tier-label tier-a">A</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="smp_tier" value="B" {% if user.smp_tier == 'B' %}checked{% endif %}>
-                                                <span class="tier-label tier-b">B</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="smp_tier" value="C" {% if user.smp_tier == 'C' %}checked{% endif %}>
-                                                <span class="tier-label tier-c">C</span>
-                                            </label>
-                                            <label class="tier-option">
-                                                <input type="radio" name="smp_tier" value="D" {% if user.smp_tier == 'D' %}checked{% endif %}>
-                                                <span class="tier-label tier-d">D</span>
-                                            </label>
-                                        </div>
-                                        <div class="tier-notes">
-                                            <input type="text" name="smp_notes" placeholder="Add notes about your SMP skills..." value="{{ user.smp_notes or '' }}">
-                                        </div>
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/axe.svg') }}" alt="AXE" class="tier-icon-small">
+                                        <span>AXE (Axe Combat)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="axe_tier" value="{{ user.axe_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
+                                    </div>
+                                </div>
+                                
+                                <div class="tier-input-row">
+                                    <div class="tier-input-label">
+                                        <img src="{{ url_for('static', filename='img/smp.svg') }}" alt="SMP" class="tier-icon-small">
+                                        <span>SMP (Survival Multiplayer)</span>
+                                    </div>
+                                    <div class="tier-input-field">
+                                        <input type="text" name="smp_tier" value="{{ user.smp_tier or '' }}" 
+                                               pattern="(LT|HT)[1-5]" 
+                                               title="Please use format LT1-5 or HT1-5"
+                                               placeholder="e.g. LT3 or HT2">
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="form-actions">
-                                <button type="submit" class="save-btn">Save Tiers</button>
-                                <button type="reset" class="cancel-btn">Reset</button>
+                                <button type="submit" class="cosmic-btn primary">Save Tiers</button>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                        
+                        <div class="quick-tier-selection">
+                            <h3>Alternative: Select Your Skill Tiers</h3>
+                            <p>Or choose the tier that best represents your skill level for each game mode:</p>
+                            
+                            <div class="quick-tier-grid">
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell header-cell">Game Mode</div>
+                                    <div class="quick-tier-cell header-cell">LT1</div>
+                                    <div class="quick-tier-cell header-cell">LT2</div>
+                                    <div class="quick-tier-cell header-cell">LT3</div>
+                                    <div class="quick-tier-cell header-cell">LT4</div>
+                                    <div class="quick-tier-cell header-cell">LT5</div>
+                                    <div class="quick-tier-cell header-cell">HT1</div>
+                                    <div class="quick-tier-cell header-cell">HT2</div>
+                                    <div class="quick-tier-cell header-cell">HT3</div>
+                                    <div class="quick-tier-cell header-cell">HT4</div>
+                                    <div class="quick-tier-cell header-cell">HT5</div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/neth-op.svg') }}" alt="NPOT" class="tier-icon-small"> NPOT</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="LT1" id="npot_lt1" {% if user.npot_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="LT2" id="npot_lt2" {% if user.npot_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="LT3" id="npot_lt3" {% if user.npot_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="LT4" id="npot_lt4" {% if user.npot_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="LT5" id="npot_lt5" {% if user.npot_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="HT1" id="npot_ht1" {% if user.npot_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="HT2" id="npot_ht2" {% if user.npot_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="HT3" id="npot_ht3" {% if user.npot_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="HT4" id="npot_ht4" {% if user.npot_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="npot_tier" value="HT5" id="npot_ht5" {% if user.npot_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/uhc.svg') }}" alt="UHC" class="tier-icon-small"> UHC</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="LT1" id="uhc_lt1" {% if user.uhc_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="LT2" id="uhc_lt2" {% if user.uhc_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="LT3" id="uhc_lt3" {% if user.uhc_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="LT4" id="uhc_lt4" {% if user.uhc_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="LT5" id="uhc_lt5" {% if user.uhc_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="HT1" id="uhc_ht1" {% if user.uhc_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="HT2" id="uhc_ht2" {% if user.uhc_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="HT3" id="uhc_ht3" {% if user.uhc_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="HT4" id="uhc_ht4" {% if user.uhc_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="uhc_tier" value="HT5" id="uhc_ht5" {% if user.uhc_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/cpvp.svg') }}" alt="CPVP" class="tier-icon-small"> CPVP</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="LT1" id="cpvp_lt1" {% if user.cpvp_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="LT2" id="cpvp_lt2" {% if user.cpvp_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="LT3" id="cpvp_lt3" {% if user.cpvp_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="LT4" id="cpvp_lt4" {% if user.cpvp_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="LT5" id="cpvp_lt5" {% if user.cpvp_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="HT1" id="cpvp_ht1" {% if user.cpvp_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="HT2" id="cpvp_ht2" {% if user.cpvp_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="HT3" id="cpvp_ht3" {% if user.cpvp_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="HT4" id="cpvp_ht4" {% if user.cpvp_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="cpvp_tier" value="HT5" id="cpvp_ht5" {% if user.cpvp_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/sword.svg') }}" alt="SWORD" class="tier-icon-small"> SWORD</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="LT1" id="sword_lt1" {% if user.sword_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="LT2" id="sword_lt2" {% if user.sword_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="LT3" id="sword_lt3" {% if user.sword_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="LT4" id="sword_lt4" {% if user.sword_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="LT5" id="sword_lt5" {% if user.sword_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="HT1" id="sword_ht1" {% if user.sword_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="HT2" id="sword_ht2" {% if user.sword_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="HT3" id="sword_ht3" {% if user.sword_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="HT4" id="sword_ht4" {% if user.sword_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="sword_tier" value="HT5" id="sword_ht5" {% if user.sword_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/axe.svg') }}" alt="AXE" class="tier-icon-small"> AXE</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="LT1" id="axe_lt1" {% if user.axe_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="LT2" id="axe_lt2" {% if user.axe_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="LT3" id="axe_lt3" {% if user.axe_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="LT4" id="axe_lt4" {% if user.axe_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="LT5" id="axe_lt5" {% if user.axe_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="HT1" id="axe_ht1" {% if user.axe_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="HT2" id="axe_ht2" {% if user.axe_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="HT3" id="axe_ht3" {% if user.axe_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="HT4" id="axe_ht4" {% if user.axe_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="axe_tier" value="HT5" id="axe_ht5" {% if user.axe_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tier-row">
+                                    <div class="quick-tier-cell"><img src="{{ url_for('static', filename='img/smp.svg') }}" alt="SMP" class="tier-icon-small"> SMP</div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="LT1" id="smp_lt1" {% if user.smp_tier == 'LT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="LT2" id="smp_lt2" {% if user.smp_tier == 'LT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="LT3" id="smp_lt3" {% if user.smp_tier == 'LT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="LT4" id="smp_lt4" {% if user.smp_tier == 'LT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="LT5" id="smp_lt5" {% if user.smp_tier == 'LT5' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="HT1" id="smp_ht1" {% if user.smp_tier == 'HT1' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="HT2" id="smp_ht2" {% if user.smp_tier == 'HT2' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="HT3" id="smp_ht3" {% if user.smp_tier == 'HT3' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="HT4" id="smp_ht4" {% if user.smp_tier == 'HT4' %}checked{% endif %}>
+                                    </div>
+                                    <div class="quick-tier-cell">
+                                        <input type="radio" name="smp_tier" value="HT5" id="smp_ht5" {% if user.smp_tier == 'HT5' %}checked{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="cosmic-btn primary">Save Skill Tiers</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -993,5 +1403,56 @@
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
     <script src="{{ url_for('static', filename='js/loaders.js') }}"></script>
+    
+    <script>
+        // Script to validate tier inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const tierInputs = document.querySelectorAll('input[name$="_tier"]');
+            const tierPattern = /(LT|HT)[1-5]/;
+            
+            tierInputs.forEach(input => {
+                // Real-time validation
+                input.addEventListener('input', function() {
+                    const value = this.value.trim().toUpperCase();
+                    if (value === '' || tierPattern.test(value)) {
+                        this.classList.remove('invalid');
+                        // Update the tier display dynamically
+                        if (value) {
+                            // Convert the input to uppercase
+                            this.value = value;
+                        }
+                    } else {
+                        this.classList.add('invalid');
+                    }
+                });
+                
+                // Convert to uppercase on blur
+                input.addEventListener('blur', function() {
+                    const value = this.value.trim();
+                    if (value) {
+                        this.value = value.toUpperCase();
+                    }
+                });
+            });
+            
+            // Form submission validation
+            document.querySelector('.skill-tiers-form').addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                tierInputs.forEach(input => {
+                    const value = input.value.trim();
+                    if (value !== '' && !tierPattern.test(value.toUpperCase())) {
+                        input.classList.add('invalid');
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please use the correct tier format: LT1-5 or HT1-5');
+                }
+            });
+        });
+    </script>
 </body>
 </html> 
