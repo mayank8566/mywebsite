@@ -347,7 +347,15 @@ def get_team(team_id):
     conn.row_factory = sqlite3.Row  # Use Row factory to access columns by name
     cursor = conn.cursor()
     
-    cursor.execute('SELECT * FROM teams WHERE id = ?', (team_id,))
+    # Get basic team info and leader info
+    cursor.execute('''
+        SELECT t.*, tm.user_id as leader_id, u.username as leader_username 
+        FROM teams t
+        LEFT JOIN team_members tm ON t.id = tm.team_id AND tm.is_leader = 1
+        LEFT JOIN users u ON tm.user_id = u.id
+        WHERE t.id = ?
+    ''', (team_id,))
+    
     team = cursor.fetchone()
     
     # Convert to dictionary if result exists
@@ -731,10 +739,11 @@ def main():
     
     cursor.execute('''
     SELECT t.id, t.name, t.description, t.logo, t.points, COUNT(tm.user_id) as member_count, 
-           u.username as leader_name
+           leader.username as leader_name
     FROM teams t
     LEFT JOIN team_members tm ON t.id = tm.team_id
-    LEFT JOIN users u ON t.leader_id = u.id
+    LEFT JOIN team_members leader_rel ON t.id = leader_rel.team_id AND leader_rel.is_leader = 1
+    LEFT JOIN users leader ON leader_rel.user_id = leader.id
     GROUP BY t.id
     ORDER BY t.points DESC
     LIMIT 6
@@ -1139,11 +1148,12 @@ def teams():
     
     # Get all teams with member count and leader name
     cursor.execute('''
-        SELECT t.id, t.name, t.description, t.logo, t.points, t.leader_id, t.created_at,
-               u.username as leader_name,
+        SELECT t.id, t.name, t.description, t.logo, t.points, t.created_at,
+               leader.username as leader_name, leader.id as leader_id,
                (SELECT COUNT(*) FROM team_members WHERE team_id = t.id) as member_count
         FROM teams t
-        LEFT JOIN users u ON t.leader_id = u.id
+        LEFT JOIN team_members leader_rel ON t.id = leader_rel.team_id AND leader_rel.is_leader = 1
+        LEFT JOIN users leader ON leader_rel.user_id = leader.id
         ORDER BY t.points DESC
     ''')
     
@@ -1176,9 +1186,9 @@ def teams():
     conn.close()
     
     return render_template('teams.html', 
-                          teams=teams_list,
-                          can_create_team=can_create_team,
-                          unread_mail_count=unread_mail_count)
+                           teams=teams_list,
+                           can_create_team=can_create_team,
+                           unread_mail_count=unread_mail_count)
 
 @app.route('/teams/create', methods=['GET', 'POST'])
 @login_required
@@ -1367,7 +1377,7 @@ def edit_team(team_id):
         return redirect(url_for('teams'))
     
     # Check if user is team leader or admin
-    is_leader = team[6] == session.get('user_id')  # team[6] is leader_id
+    is_leader = team['leader_id'] == session.get('user_id')
     is_admin = session.get('is_admin', False)
     
     if not (is_leader or is_admin):
@@ -1395,7 +1405,7 @@ def edit_team(team_id):
             return redirect(url_for('edit_team', team_id=team_id))
         
         # Save team logo if provided
-        logo_path = team[3]  # Keep existing logo path
+        logo_path = team['logo']  # Keep existing logo path
         if team_logo and team_logo.filename:
             logo_path = save_team_logo(team_logo, team_name)
         
@@ -1412,18 +1422,7 @@ def edit_team(team_id):
         flash('Team updated successfully', 'success')
         return redirect(url_for('view_team', team_id=team_id))
     
-    # Convert team tuple to dict for easier template access
-    team_dict = {
-        'id': team[0],
-        'name': team[1],
-        'description': team[2],
-        'logo': team[3],
-        'points': team[4],
-        'created_at': team[5],
-        'leader_id': team[6]
-    }
-    
-    return render_template('edit_team.html', team=team_dict, is_admin=is_admin)
+    return render_template('edit_team.html', team=team, is_admin=is_admin)
 
 @app.route('/teams/<int:team_id>/invite', methods=['GET', 'POST'])
 @login_required
@@ -1520,7 +1519,7 @@ def leave_team(team_id):
     user_id = session.get('user_id')
     
     # Leaders can't leave their team
-    if team[6] == user_id:  # team[6] is leader_id
+    if team['leader_id'] == user_id:
         flash('Team leaders cannot leave their team. Transfer leadership first or delete the team.', 'error')
         return redirect(url_for('view_team', team_id=team_id))
     
@@ -1545,7 +1544,7 @@ def remove_from_team(team_id, user_id):
         return redirect(url_for('teams'))
     
     # Check if user is team leader or admin
-    is_leader = team[6] == session.get('user_id')  # team[6] is leader_id
+    is_leader = team['leader_id'] == session.get('user_id')
     is_admin = session.get('is_admin', False)
     
     if not (is_leader or is_admin):
@@ -1553,7 +1552,7 @@ def remove_from_team(team_id, user_id):
         return redirect(url_for('view_team', team_id=team_id))
     
     # Leaders can't be removed
-    if user_id == team[6]:
+    if user_id == team['leader_id']:
         flash('Team leaders cannot be removed', 'error')
         return redirect(url_for('view_team', team_id=team_id))
     
