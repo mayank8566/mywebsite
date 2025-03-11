@@ -248,10 +248,10 @@ def admin_required(f):
         user = cursor.fetchone()
         conn.close()
         
-        if not user or user[0] != 1:
+        if not user or not user[0]:
             flash('You do not have permission to access this page', 'error')
-            return redirect(url_for('index'))
-        
+            return redirect(url_for('dashboard'))
+            
         return f(*args, **kwargs)
     return decorated_function
 
@@ -486,77 +486,69 @@ def send_team_invitation(sender_id, recipient_id, team_id):
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
         
-        # In a real application, these would be environment variables
-        SMTP_SERVER = "smtp.example.com"
+        # Update SMTP configuration with correct values
+        SMTP_SERVER = "smtp.gmail.com"  # Update with your SMTP server
         SMTP_PORT = 587
-        SMTP_USERNAME = "notifications@teamsync.com"
-        SMTP_PASSWORD = "your_password"
+        SMTP_USERNAME = "your_email@gmail.com"  # Update with your email
+        SMTP_PASSWORD = "your_app_password"  # Update with your app password
         
-        # Create message
         msg = MIMEMultipart()
+        msg['Subject'] = subject
         msg['From'] = f"TeamSync <{SMTP_USERNAME}>"
         msg['To'] = recipient['email']
-        msg['Subject'] = subject
         
-        # Create HTML version of the message
-        html_content = f"""
+        # Email content
+        html = f"""
         <html>
         <head>
             <style>
-                body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; }}
+                .header {{ background-color: #0a1128; color: white; padding: 10px 20px; text-align: center; }}
                 .content {{ padding: 20px; background-color: #f9f9f9; }}
-                .team-info {{ background-color: #fff; padding: 15px; border-radius: 5px; margin: 20px 0; }}
-                .button {{ display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; }}
-                .footer {{ text-align: center; margin-top: 20px; font-size: 0.8em; color: #777; }}
+                .footer {{ font-size: 12px; text-align: center; margin-top: 20px; color: #777; }}
+                .button {{ display: inline-block; padding: 10px 20px; background-color: #4a6ac8; color: white; 
+                          text-decoration: none; border-radius: 4px; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Team Invitation</h1>
+                    <h1>TeamSync</h1>
                 </div>
                 <div class="content">
+                    <h2>Team Invitation</h2>
                     <p>Hello {recipient['username']},</p>
-                    <p>You have been invited to join the team <strong>"{team['name']}"</strong> by <strong>{sender['username']}</strong>.</p>
-                    
-                    <div class="team-info">
-                        <h3>Team Description:</h3>
-                        <p>{team['description']}</p>
-                    </div>
-                    
-                    <p>To accept or decline this invitation, please log in to your TeamSync account and check your in-app mail.</p>
-                    
-                    <p><a href="http://localhost:5000/mail" class="button">View Invitation</a></p>
+                    <p>{content}</p>
+                    <p>Please log in to your account to accept or decline this invitation.</p>
+                    <p><a href="http://yourwebsite.com/login" class="button">Go to TeamSync</a></p>
                 </div>
                 <div class="footer">
                     <p>This is an automated message from TeamSync. Please do not reply to this email.</p>
-                    <p>&copy; 2023 TeamSync. All rights reserved.</p>
                 </div>
             </div>
         </body>
         </html>
         """
         
-        # Attach HTML content
-        msg.attach(MIMEText(html_content, 'html'))
+        msg.attach(MIMEText(html, 'html'))
         
         # Connect to SMTP server and send email
-        # Commented out to prevent actual email sending in this example
-        """
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        """
-        
-        # For demonstration purposes, just print the email content
-        print(f"Email would be sent to {recipient['email']} with subject: {subject}")
-        
+        try:
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+            server.starttls()
+            server.login(SMTP_USERNAME, SMTP_PASSWORD)
+            server.send_message(msg)
+            server.quit()
+            print(f"Email sent successfully to {recipient['email']}")
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            # Log the error but continue execution
+            logging.error(f"Failed to send email: {str(e)}")
     except Exception as e:
         print(f"Error sending email: {e}")
+        # Log the error but continue execution
+        logging.error(f"Email setup error: {str(e)}")
     
     return mail_id
 

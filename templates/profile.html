@@ -1,3 +1,17 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy-profile.css') }}">
+{% endblock %}
+
+{% block body_class %}galaxy-theme{% endblock %}
+
+{% block content %}
+<!-- Cosmic Elements -->
+<div class="comet"></div>
+<div class="comet"></div>
+<div class="comet"></div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1326,4 +1340,5 @@
         });
     </script>
 </body>
-</html> 
+</html>
+{% endblock %} 
