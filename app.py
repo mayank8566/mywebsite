@@ -38,23 +38,33 @@ app.config['SESSION_PERMANENT'] = True
 
 # Database configuration - Use a path that works on Render
 is_render = os.environ.get('RENDER') == 'true'
-DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+# Use Render's persistent disk if available, otherwise use the local directory
+if is_render:
+    # Render persistent disk is mounted at /var/data
+    DB_DIR = '/var/data'
+    # Create the directory if it doesn't exist
+    os.makedirs(DB_DIR, exist_ok=True)
+else:
+    DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
 DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 # Upload directories configuration
-UPLOAD_FOLDER = 'static/uploads/profile_pics'
-UPLOAD_FOLDER_MUSIC = 'static/uploads/profile_music'
-UPLOAD_FOLDER_TEAM_LOGOS = 'static/uploads/team_logos'
+# Also store uploads on the persistent disk if on Render
+if is_render:
+    UPLOAD_FOLDER = '/var/data/uploads/profile_pics'
+    UPLOAD_FOLDER_MUSIC = '/var/data/uploads/profile_music'
+    UPLOAD_FOLDER_TEAM_LOGOS = '/var/data/uploads/team_logos'
+else:
+    UPLOAD_FOLDER = 'static/uploads/profile_pics'
+    UPLOAD_FOLDER_MUSIC = 'static/uploads/profile_music'
+    UPLOAD_FOLDER_TEAM_LOGOS = 'static/uploads/team_logos'
 
 # Create necessary directories
-if not os.path.exists(DB_DIR):
-    os.makedirs(DB_DIR, exist_ok=True)
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-if not os.path.exists(UPLOAD_FOLDER_MUSIC):
-    os.makedirs(UPLOAD_FOLDER_MUSIC, exist_ok=True)
-if not os.path.exists(UPLOAD_FOLDER_TEAM_LOGOS):
-    os.makedirs(UPLOAD_FOLDER_TEAM_LOGOS, exist_ok=True)
+os.makedirs(DB_DIR, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER_MUSIC, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER_TEAM_LOGOS, exist_ok=True)
 
 # Set up logging for production
 if not app.debug:
@@ -162,6 +172,22 @@ def init_db():
         if missing_columns:
             print(f"Added {len(missing_columns)} missing columns: {missing_columns}")
     
+    # Check if teams table exists and has all required columns
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='teams'")
+    teams_table_exists = cursor.fetchone()
+    
+    if teams_table_exists:
+        print("Teams table exists, checking for required columns")
+        cursor.execute("PRAGMA table_info(teams)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        # Add any missing columns
+        required_columns = ['email', 'discord', 'website', 'rules']
+        for column in required_columns:
+            if column not in columns:
+                print(f"Adding missing column to teams table: {column}")
+                cursor.execute(f"ALTER TABLE teams ADD COLUMN {column} TEXT")
+    
     # Other tables - only create if they don't exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS teams (
@@ -170,6 +196,10 @@ def init_db():
         description TEXT,
         logo TEXT,
         points INTEGER DEFAULT 0,
+        email TEXT,
+        discord TEXT,
+        website TEXT,
+        rules TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -1896,7 +1926,27 @@ def inject_unread_mail_count():
         return {'unread_mail_count': get_unread_mail_count(session.get('user_id'))}
     return {'unread_mail_count': 0}
 
-# Custom error handlers
+# Add a new context processor to provide current_user to templates
+@app.context_processor
+def inject_current_user():
+    """Inject current_user into templates for compatibility with Flask-Login style templates"""
+    if 'user_id' in session:
+        # Create a simple object with is_authenticated and id attributes
+        class CurrentUser:
+            def __init__(self, user_id):
+                self.is_authenticated = True
+                self.id = user_id
+        
+        return {'current_user': CurrentUser(session.get('user_id'))}
+    else:
+        # Create a simple object with is_authenticated=False
+        class AnonymousUser:
+            def __init__(self):
+                self.is_authenticated = False
+                self.id = None
+        
+        return {'current_user': AnonymousUser()}
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -3109,9 +3159,9 @@ def restore_database():
         flash(f'Failed to restore database: {str(e)}', 'error')
         return redirect(url_for('restore_database_page'))
 
-@app.before_first_request
-def initialize_app():
-    """Initialize the app before first request"""
+# Create a new function for initialization
+def initialize_app_data():
+    """Initialize the app data at startup"""
     try:
         # Start the backup scheduler in a separate thread
         if 'db_backup' in globals():
@@ -3124,6 +3174,10 @@ def initialize_app():
             app.logger.info("User tiers migrated to new system")
     except Exception as e:
         app.logger.error(f"Failed to start initialization: {str(e)}")
+
+# Call the initialization function within an app context
+with app.app_context():
+    initialize_app_data()
 
 @app.route('/admin/backup', methods=['GET', 'POST'])
 @login_required

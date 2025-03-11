@@ -1,8 +1,16 @@
 import sqlite3
 from datetime import datetime
+import os
 
-# Database path - this should match the app's database path
-DB_PATH = 'cosmic_teams.db'
+# Use the same path determination as app.py
+is_render = os.environ.get('RENDER') == 'true'
+if is_render:
+    DB_DIR = '/var/data'
+    os.makedirs(DB_DIR, exist_ok=True)
+else:
+    DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 class TierManager:
     """Class to manage user skill tiers"""
