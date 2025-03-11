@@ -2,8 +2,22 @@ import sqlite3
 from datetime import datetime
 import os
 
-# Database configuration
-DB_PATH = 'galaxy_minecraft.db'
+# Get the application root directory
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Check if running on Render
+is_render = os.environ.get('RENDER') == 'true'
+
+# Database configuration - Use the same path as in app.py
+if is_render:
+    DB_DIR = os.path.join(APP_ROOT, 'instance', 'data')
+else:
+    DB_DIR = os.path.join(APP_ROOT, 'data')
+
+# Create the directory if it doesn't exist
+os.makedirs(DB_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 def get_db_connection():
     """Create a database connection and return the connection and cursor"""

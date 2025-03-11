@@ -1,7 +1,22 @@
 import sqlite3
 import os
 
-DB_PATH = 'database.db'
+# Get the application root directory
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Check if running on Render
+is_render = os.environ.get('RENDER') == 'true'
+
+# Database configuration - Use the same path as in app.py
+if is_render:
+    DB_DIR = os.path.join(APP_ROOT, 'instance', 'data')
+else:
+    DB_DIR = os.path.join(APP_ROOT, 'data')
+
+# Create the directory if it doesn't exist
+os.makedirs(DB_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 def add_tier_column():
     """Add tier column to the users table"""

@@ -5,10 +5,13 @@ import os
 # Use the same path determination as app.py
 is_render = os.environ.get('RENDER') == 'true'
 if is_render:
-    DB_DIR = '/var/data'
-    os.makedirs(DB_DIR, exist_ok=True)
+    # Use a directory within the project that we have permission to access
+    DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'data')
 else:
     DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+# Create the directory if it doesn't exist
+os.makedirs(DB_DIR, exist_ok=True)
 
 DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 

@@ -4,8 +4,22 @@ import hashlib
 import secrets
 from datetime import datetime
 
-# Database configuration
-DB_PATH = 'galaxy_minecraft.db'
+# Get the application root directory
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Check if running on Render
+is_render = os.environ.get('RENDER') == 'true'
+
+# Database configuration - Use the same path as in app.py
+if is_render:
+    DB_DIR = os.path.join(APP_ROOT, 'instance', 'data')
+else:
+    DB_DIR = os.path.join(APP_ROOT, 'data')
+
+# Create the directory if it doesn't exist
+os.makedirs(DB_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 SCHEMA_PATH = 'schema.sql'
 
 def hash_password(password):
@@ -14,14 +28,14 @@ def hash_password(password):
 
 def init_db():
     """Initialize the database with the schema and default data"""
-    # Check if database file exists and remove it if it does
+    # Check if database already exists
     if os.path.exists(DB_PATH):
         print(f"Database file {DB_PATH} already exists. Creating backup...")
         backup_name = f"{DB_PATH}.backup.{datetime.now().strftime('%Y%m%d%H%M%S')}"
         os.rename(DB_PATH, backup_name)
-        print(f"Backup created as {backup_name}")
+        print(f"Backup created: {backup_name}")
     
-    # Create a new database connection
+    # Create a new database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     

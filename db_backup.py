@@ -10,20 +10,39 @@ import schedule
 import threading
 import hashlib
 
+# Get the application root directory
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Check if running on Render
+is_render = os.environ.get('RENDER') == 'true'
+
 # Setup logging
+# Use instance directory for logs
+log_dir = os.path.join(APP_ROOT, 'instance', 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/backup.log'),
+        logging.FileHandler(os.path.join(log_dir, 'backup.log')),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger('backup_system')
 
 # Configuration
-DB_PATH = 'cosmic_teams.db'
-BACKUP_DIR = 'backups'
+# Use the same DB_PATH as in app.py
+if is_render:
+    DB_DIR = os.path.join(APP_ROOT, 'instance', 'data')
+else:
+    DB_DIR = os.path.join(APP_ROOT, 'data')
+
+DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
+
+# Use instance directory for backups
+BACKUP_DIR = os.path.join(APP_ROOT, 'instance', 'backups')
+
 MAX_DAILY_BACKUPS = 7     # Keep last 7 daily backups
 MAX_WEEKLY_BACKUPS = 4    # Keep last 4 weekly backups
 MAX_MONTHLY_BACKUPS = 12  # Keep last 12 monthly backups

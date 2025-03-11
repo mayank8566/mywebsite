@@ -38,23 +38,24 @@ app.config['SESSION_PERMANENT'] = True
 
 # Database configuration - Use a path that works on Render
 is_render = os.environ.get('RENDER') == 'true'
-# Use Render's persistent disk if available, otherwise use the local directory
+# Use a directory within the project that we have permission to access
 if is_render:
-    # Render persistent disk is mounted at /var/data
-    DB_DIR = '/var/data'
-    # Create the directory if it doesn't exist
-    os.makedirs(DB_DIR, exist_ok=True)
+    # Use a directory within the project that we have permission to access
+    DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'data')
 else:
     DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+# Create the directory if it doesn't exist
+os.makedirs(DB_DIR, exist_ok=True)
 
 DB_PATH = os.path.join(DB_DIR, 'cosmic_teams.db')
 
 # Upload directories configuration
-# Also store uploads on the persistent disk if on Render
+# Also store uploads in the instance directory if on Render
 if is_render:
-    UPLOAD_FOLDER = '/var/data/uploads/profile_pics'
-    UPLOAD_FOLDER_MUSIC = '/var/data/uploads/profile_music'
-    UPLOAD_FOLDER_TEAM_LOGOS = '/var/data/uploads/team_logos'
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads', 'profile_pics')
+    UPLOAD_FOLDER_MUSIC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads', 'profile_music')
+    UPLOAD_FOLDER_TEAM_LOGOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'uploads', 'team_logos')
 else:
     UPLOAD_FOLDER = 'static/uploads/profile_pics'
     UPLOAD_FOLDER_MUSIC = 'static/uploads/profile_music'
@@ -68,9 +69,11 @@ os.makedirs(UPLOAD_FOLDER_TEAM_LOGOS, exist_ok=True)
 
 # Set up logging for production
 if not app.debug:
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/cosmic_teams.log', maxBytes=10240, backupCount=10)
+    # Use a directory within the project for logs
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    
+    file_handler = RotatingFileHandler(os.path.join(log_dir, 'cosmic_teams.log'), maxBytes=10240, backupCount=10)
     file_handler.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     ))
