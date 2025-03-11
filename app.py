@@ -92,106 +92,39 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def init_db():
-    """Initialize database and tables"""
-    # Print a message so we know when this happens
-    print("Initializing database (creating tables if they don't exist)")
-    
+    """Initialize the database with schema"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Check if the users table already exists
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
-    table_exists = cursor.fetchone()
+    # Create tables if they don't exist
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        email TEXT,
+        is_admin INTEGER DEFAULT 0,
+        profile_pic TEXT,
+        profile_music TEXT,
+        bio TEXT,
+        location TEXT,
+        website TEXT,
+        name TEXT,
+        points INTEGER DEFAULT 0,
+        npot_tier TEXT,
+        uhc_tier TEXT,
+        sword_tier TEXT,
+        smp_tier TEXT,
+        cpvp_tier TEXT,
+        axe_tier TEXT,
+        can_create_team INTEGER DEFAULT 1,
+        is_banned INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
     
-    if not table_exists:
-        print("Creating users table for the first time")
-        # Create users table if it doesn't exist
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            full_name TEXT,
-            bio TEXT,
-            profile_pic TEXT,
-            location TEXT,
-            website TEXT,
-            is_admin BOOLEAN DEFAULT 0,
-            is_verified BOOLEAN DEFAULT 0,
-            can_create_team BOOLEAN DEFAULT 1,
-            is_banned BOOLEAN DEFAULT 0,
-            tier TEXT,
-            nethpot_tier TEXT,
-            nethpot_notes TEXT,
-            uhc_tier TEXT,
-            uhc_notes TEXT,
-            cpvp_tier TEXT,
-            cpvp_notes TEXT,
-            sword_tier TEXT,
-            sword_notes TEXT,
-            smp_tier TEXT,
-            smp_notes TEXT,
-            axe_tier TEXT,
-            npot_tier TEXT,
-            profile_music TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(username, email)
-        )
-        ''')
-        
-        # Create initial admin user if this is a new database
-        admin_password_hash = hash_password(ADMIN_PASSWORD)
-        try:
-            cursor.execute('''
-            INSERT INTO users (username, email, password, is_admin, is_verified, can_create_team)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ''', ('admin', 'admin@example.com', admin_password_hash, 1, 1, 1))
-            print("Created initial admin user")
-        except sqlite3.IntegrityError:
-            # Admin user likely already exists
-            pass
-    else:
-        print("Users table already exists, checking for required columns")
-        # Ensure all required columns exist
-        cursor.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        # Add any missing columns that should exist
-        required_columns = ['npot_tier', 'uhc_tier', 'cpvp_tier', 'sword_tier', 'axe_tier', 'smp_tier', 'profile_music']
-        
-        missing_columns = []
-        for column in required_columns:
-            if column not in columns:
-                missing_columns.append(column)
-                print(f"Adding missing column: {column}")
-                cursor.execute(f"ALTER TABLE users ADD COLUMN {column} TEXT")
-        
-        if 'npot_tier' in missing_columns and 'nethpot_tier' in columns:
-            print("Mapping nethpot_tier to npot_tier")
-            cursor.execute("UPDATE users SET npot_tier = nethpot_tier WHERE nethpot_tier IS NOT NULL")
-            
-        if missing_columns:
-            print(f"Added {len(missing_columns)} missing columns: {missing_columns}")
-    
-    # Check if teams table exists and has all required columns
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='teams'")
-    teams_table_exists = cursor.fetchone()
-    
-    if teams_table_exists:
-        print("Teams table exists, checking for required columns")
-        cursor.execute("PRAGMA table_info(teams)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        # Add any missing columns
-        required_columns = ['email', 'discord', 'website', 'rules']
-        for column in required_columns:
-            if column not in columns:
-                print(f"Adding missing column to teams table: {column}")
-                cursor.execute(f"ALTER TABLE teams ADD COLUMN {column} TEXT")
-    
-    # Other tables - only create if they don't exist
+    # Create teams table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS teams (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -208,12 +141,13 @@ def init_db():
     )
     ''')
     
+    # Create team members table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS team_members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER,
         user_id INTEGER,
-        is_leader BOOLEAN DEFAULT 0,
+        is_leader INTEGER DEFAULT 0,
         joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (team_id) REFERENCES teams (id),
         FOREIGN KEY (user_id) REFERENCES users (id),
@@ -221,6 +155,7 @@ def init_db():
     )
     ''')
     
+    # Create mail table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS mail (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -228,18 +163,45 @@ def init_db():
         recipient_id INTEGER,
         subject TEXT,
         content TEXT,
-        is_read BOOLEAN DEFAULT 0,
+        is_read INTEGER DEFAULT 0,
         mail_type TEXT DEFAULT 'message',
         related_id INTEGER,
-        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (sender_id) REFERENCES users (id),
         FOREIGN KEY (recipient_id) REFERENCES users (id)
     )
     ''')
     
+    # Create user follows table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS user_follows (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        follower_id INTEGER,
+        following_id INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (follower_id) REFERENCES users (id),
+        FOREIGN KEY (following_id) REFERENCES users (id),
+        UNIQUE(follower_id, following_id)
+    )
+    ''')
+    
+    # Create team invite responses table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS team_invite_responses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mail_id INTEGER,
+        user_id INTEGER,
+        team_id INTEGER,
+        response TEXT,
+        responded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (mail_id) REFERENCES mail (id),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (team_id) REFERENCES teams (id)
+    )
+    ''')
+    
     conn.commit()
     conn.close()
-    print("Database initialization completed")
 
 def get_db():
     """Get a database connection"""
@@ -2466,6 +2428,9 @@ def view_user(user_id):
             conn.close()
             flash('User not found', 'error')
             return redirect(url_for('main'))
+        
+        # Convert to dict to allow attribute access in template
+        user = dict(user)
         
         # Check if the current user is following this user
         is_following = False
