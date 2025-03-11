@@ -819,62 +819,33 @@ def dashboard():
 def profile():
     """User profile page"""
     user_id = session.get('user_id')
+    
+    # Get user details
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
-    # Get user details
-    cursor.execute('''
-        SELECT id, username, email, password, is_admin, profile_pic, profile_music, bio, location, website, full_name, 
-               tier, nethpot_tier, nethpot_notes, uhc_tier, uhc_notes, cpvp_tier, cpvp_notes, 
-               sword_tier, sword_notes, smp_tier, smp_notes, can_create_team
-        FROM users
-        WHERE id = ?
-    ''', (user_id,))
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
     user = cursor.fetchone()
     
     if not user:
         conn.close()
         flash('User not found', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('main'))
     
-    # Get user's team information
-    user_team = None
-    is_team_leader = False
+    # Get user's team
+    user_team = get_user_team(user_id)
     
-    cursor.execute('''
-        SELECT t.id, t.name, t.description, t.logo, t.points, tm.is_leader,
-               (SELECT COUNT(*) FROM team_members WHERE team_id = t.id) as member_count
-        FROM teams t
-        JOIN team_members tm ON t.id = tm.team_id
-        WHERE tm.user_id = ?
-    ''', (user_id,))
-    team_data = cursor.fetchone()
-    
-    if team_data:
-        user_team = dict(team_data)
-        is_team_leader = team_data['is_leader'] == 1
+    # Get unread mail count
+    unread_mail_count = get_unread_mail_count(user_id)
     
     conn.close()
     
-    # Get user skills using new tier system
-    user_skills = []
-    try:
-        if 'TierManager' in globals():
-            user_skills = TierManager.get_user_skills(user_id)
-    except Exception as e:
-        app.logger.error(f"Error fetching user skills: {str(e)}")
-    
-    message = session.pop('message', None)
-    message_type = session.pop('message_type', 'info')
-    
-    return render_template('profile.html', 
+    # Use the new profile template
+    return render_template('profile_new.html', 
                           user=user, 
-                          user_team=user_team,
-                          is_team_leader=is_team_leader,
-                          message=message, 
-                          message_type=message_type,
-                          user_skills=user_skills)
+                          user_team=user_team, 
+                          unread_mail_count=unread_mail_count)
 
 @app.route('/profile/update', methods=['POST'])
 @login_required
@@ -883,73 +854,139 @@ def profile_update():
     user_id = session.get('user_id')
     
     # Get form data
-    full_name = request.form.get('full_name', '')
+    name = request.form.get('name', '')
     bio = request.form.get('bio', '')
     location = request.form.get('location', '')
     website = request.form.get('website', '')
-    tier = request.form.get('tier', 'none')
+    email = request.form.get('email', '')
     
-    # Get file uploads
-    profile_pic_file = request.files.get('profile_pic')
-    profile_music_file = request.files.get('profile_music')
+    # Get skill tiers
+    npot_tier = request.form.get('npot_tier', '')
+    uhc_tier = request.form.get('uhc_tier', '')
+    sword_tier = request.form.get('sword_tier', '')
+    smp_tier = request.form.get('smp_tier', '')
+    cpvp_tier = request.form.get('cpvp_tier', '')
+    axe_tier = request.form.get('axe_tier', '')
     
-    # Database connection
+    # Validate tier formats if provided
+    valid_tiers = ['', 'LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'HT1', 'HT2', 'HT3', 'HT4', 'HT5']
+    
+    if npot_tier not in valid_tiers:
+        flash('Invalid NPOT tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    if uhc_tier not in valid_tiers:
+        flash('Invalid UHC tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    if sword_tier not in valid_tiers:
+        flash('Invalid Sword tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    if smp_tier not in valid_tiers:
+        flash('Invalid SMP tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    if cpvp_tier not in valid_tiers:
+        flash('Invalid CPVP tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    if axe_tier not in valid_tiers:
+        flash('Invalid Axe tier format. Use LT1-LT5 or HT1-HT5.', 'error')
+        return redirect(url_for('profile'))
+    
+    # Validate email format if provided
+    if email and '@' not in email:
+        flash('Invalid email format', 'error')
+        return redirect(url_for('profile'))
+    
+    # Validate website format if provided
+    if website and not (website.startswith('http://') or website.startswith('https://')):
+        website = 'https://' + website
+    
+    # Handle profile picture upload
+    profile_pic = None
+    if 'profile_pic' in request.files and request.files['profile_pic'].filename:
+        try:
+            profile_pic = save_profile_pic(request.files['profile_pic'], session.get('username'))
+        except Exception as e:
+            flash(f'Error uploading profile picture: {str(e)}', 'error')
+    
+    # Handle profile music upload
+    profile_music = None
+    if 'profile_music' in request.files and request.files['profile_music'].filename:
+        try:
+            profile_music = save_profile_music(request.files['profile_music'], session.get('username'))
+        except Exception as e:
+            flash(f'Error uploading profile music: {str(e)}', 'error')
+    
+    # Update user in database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    try:
-        # Get current user data
-        cursor.execute('SELECT username, profile_pic, profile_music FROM users WHERE id = ?', (user_id,))
-        user = cursor.fetchone()
-        if not user:
-            raise ValueError("User not found")
-        
-        username, current_pic, current_music = user
-        
-        # Process profile picture if uploaded
-        profile_pic_path = current_pic
-        if profile_pic_file and profile_pic_file.filename:
-            try:
-                profile_pic_path = save_profile_pic(profile_pic_file, username)
-            except Exception as e:
-                flash(f"Error saving profile picture: {str(e)}", "error")
-        
-        # Process profile music if uploaded
-        profile_music_path = current_music
-        if profile_music_file and profile_music_file.filename:
-            try:
-                profile_music_path = save_profile_music(profile_music_file, username)
-            except Exception as e:
-                flash(f"Error saving profile music: {str(e)}", "error")
-        
-        # Update user in database
-        cursor.execute('''
-            UPDATE users 
-            SET full_name = ?, bio = ?, location = ?, website = ?, 
-                profile_pic = ?, profile_music = ?, tier = ?, updated_at = CURRENT_TIMESTAMP 
-            WHERE id = ?
-        ''', (full_name, bio, location, website, profile_pic_path, profile_music_path, tier, user_id))
-        
-        # Update Minecraft-specific tier information
-        update_tier(cursor, user_id, "nethpot_tier", request.form.get("nethpot_tier"))
-        update_tier(cursor, user_id, "nethpot_notes", request.form.get("nethpot_notes"))
-        update_tier(cursor, user_id, "uhc_tier", request.form.get("uhc_tier"))
-        update_tier(cursor, user_id, "uhc_notes", request.form.get("uhc_notes"))
-        update_tier(cursor, user_id, "cpvp_tier", request.form.get("cpvp_tier"))
-        update_tier(cursor, user_id, "cpvp_notes", request.form.get("cpvp_notes"))
-        update_tier(cursor, user_id, "sword_tier", request.form.get("sword_tier"))
-        update_tier(cursor, user_id, "sword_notes", request.form.get("sword_notes"))
-        update_tier(cursor, user_id, "smp_tier", request.form.get("smp_tier"))
-        update_tier(cursor, user_id, "smp_notes", request.form.get("smp_notes"))
-        
-        conn.commit()
-        flash("Profile updated successfully!", "success")
-        
-    except Exception as e:
-        conn.rollback()
-        flash(f"Error updating profile: {str(e)}", "error")
+    # Build the update query dynamically based on what was provided
+    update_fields = []
+    params = []
     
+    # Always update these fields
+    update_fields.append("name = ?")
+    params.append(name)
+    
+    update_fields.append("bio = ?")
+    params.append(bio)
+    
+    update_fields.append("location = ?")
+    params.append(location)
+    
+    update_fields.append("website = ?")
+    params.append(website)
+    
+    update_fields.append("email = ?")
+    params.append(email)
+    
+    # Update skill tiers
+    update_fields.append("npot_tier = ?")
+    params.append(npot_tier)
+    
+    update_fields.append("uhc_tier = ?")
+    params.append(uhc_tier)
+    
+    update_fields.append("sword_tier = ?")
+    params.append(sword_tier)
+    
+    update_fields.append("smp_tier = ?")
+    params.append(smp_tier)
+    
+    update_fields.append("cpvp_tier = ?")
+    params.append(cpvp_tier)
+    
+    update_fields.append("axe_tier = ?")
+    params.append(axe_tier)
+    
+    # Only update profile_pic if a new one was uploaded
+    if profile_pic:
+        update_fields.append("profile_pic = ?")
+        params.append(profile_pic)
+    
+    # Only update profile_music if a new one was uploaded
+    if profile_music:
+        update_fields.append("profile_music = ?")
+        params.append(profile_music)
+    
+    # Add user_id to params
+    params.append(user_id)
+    
+    # Execute the update query
+    cursor.execute(f'''
+        UPDATE users 
+        SET {', '.join(update_fields)}
+        WHERE id = ?
+    ''', params)
+    
+    conn.commit()
     conn.close()
+    
+    flash('Profile updated successfully', 'success')
     return redirect(url_for('profile'))
 
 @app.route('/profile/change-password', methods=['POST'])
@@ -2410,84 +2447,52 @@ def kick_team_member(team_id, user_id):
 
 @app.route('/user/<int:user_id>')
 def view_user(user_id):
-    """View another user's profile"""
-    try:
-        # Check if user is trying to view their own profile
-        if session.get('user_id') == user_id:
-            return redirect(url_for('profile'))
-        
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        
-        # Get user details with explicit list of columns to fetch
-        cursor.execute('''
-            SELECT id, username, profile_pic, profile_music, bio, location, website, 
-                   full_name, tier, npot_tier, uhc_tier, cpvp_tier, sword_tier, 
-                   axe_tier, smp_tier, nethpot_tier
-            FROM users
-            WHERE id = ?
-        ''', (user_id,))
-        user_data = cursor.fetchone()
-        
-        if not user_data:
-            conn.close()
-            flash('User not found', 'error')
-            return redirect(url_for('teams'))
-            
-        # Convert to dict to allow attribute assignment
-        user = dict(user_data)
-        
-        # Ensure npot_tier is set correctly
-        if not user.get('npot_tier') and user.get('nethpot_tier'):
-            user['npot_tier'] = user['nethpot_tier']
-
-        # Get user's team information
-        user_team = get_user_team(user_id)
-        
-        # Get unread mail count safely
-        unread_count = 0
-        if session.get('user_id'):
-            try:
-                unread_count = get_unread_mail_count(session.get('user_id'))
-            except Exception as e:
-                print(f"Error getting unread mail count: {str(e)}")
-        
+    """View a user's profile"""
+    # If the user is viewing their own profile, redirect to the profile page
+    if 'user_id' in session and session['user_id'] == user_id:
+        return redirect(url_for('profile'))
+    
+    # Get the user's details
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # Get user details
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
         conn.close()
-        
-        # Get user skills using new tier system
-        user_skills = []
-        try:
-            if 'TierManager' in globals():
-                user_skills = TierManager.get_user_skills(user_id)
-        except Exception as e:
-            app.logger.error(f"Error fetching user skills: {str(e)}")
-        
-        # Check if the current user is following this user
-        is_following = False
-        if session.get('user_id'):
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT 1 FROM followers 
-                WHERE follower_id = ? AND following_id = ?
-            ''', (session.get('user_id'), user_id))
-            is_following = cursor.fetchone() is not None
-            conn.close()
-        
-        return render_template('view_user.html', 
-                              user=user, 
-                              user_team=user_team,
-                              unread_mail_count=unread_count,
-                              user_skills=user_skills,
-                              is_following=is_following)
-                            
+        flash('User not found', 'error')
+        return redirect(url_for('main'))
+    
+    # Check if the current user is following this user
+    is_following = False
+    if 'user_id' in session:
+        cursor.execute('''
+            SELECT * FROM user_follows 
+            WHERE follower_id = ? AND following_id = ?
+        ''', (session['user_id'], user_id))
+        if cursor.fetchone():
+            is_following = True
+    
+    # Get user's team
+    user_team = get_user_team(user_id)
+    
+    # Get user's skills from TierManager
+    try:
+        user_skills = TierManager.get_user_skills(user_id)
     except Exception as e:
-        app.logger.error(f"Error in view_user: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        flash('An error occurred while loading the user profile', 'error')
-        return redirect(url_for('teams'))
+        app.logger.error(f"Error getting user skills: {str(e)}")
+        user_skills = []
+    
+    conn.close()
+    
+    return render_template('view_user.html', 
+                          user=user, 
+                          user_team=user_team, 
+                          is_following=is_following,
+                          user_skills=user_skills)
 
 @app.route('/teams/<int:team_id>/promote/<int:user_id>', methods=['POST'])
 @login_required

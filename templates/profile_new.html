@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loaders.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h1>Your Profile</h1>
+                </div>
+                
+                <div class="profile-content">
+                    <div class="profile-sidebar">
+                        <div class="profile-avatar">
+                            {% if user.profile_pic %}
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.profile_pic) }}" alt="{{ user.username }}'s avatar">
+                            {% else %}
+                                <div class="default-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="profile-username">
+                            <h2>{{ user.username }}</h2>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <i class="fas fa-star"></i>
+                                <span>{{ user.points }} points</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Joined {{ user.created_at }}</span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <a href="{{ url_for('mail_inbox') }}" class="cosmic-btn secondary">
+                                <i class="fas fa-envelope"></i> Messages
+                                {% if unread_mail_count > 0 %}
+                                <span class="badge">{{ unread_mail_count }}</span>
+                                {% endif %}
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="cosmic-btn danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-main">
+                        <div class="profile-tabs">
+                            <button class="tab-btn active" data-tab="profile-info">Profile Info</button>
+                            <button class="tab-btn" data-tab="change-password">Change Password</button>
+                            {% if user_team %}
+                            <button class="tab-btn" data-tab="team-info">Team Info</button>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="tab-content active" id="profile-info">
+                            <form action="{{ url_for('profile_update') }}" method="post" enctype="multipart/form-data">
+                                <div class="form-section">
+                                    <h3>Basic Information</h3>
+                                    
+                                    <div class="form-group">
+                                        <label for="name">Full Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" placeholder="Your full name">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="bio">Bio</label>
+                                        <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell us about yourself">{{ user.bio }}</textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="location">Location</label>
+                                        <input type="text" class="form-control" id="location" name="location" value="{{ user.location }}" placeholder="Your location">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="website">Website (Optional)</label>
+                                        <input type="text" class="form-control" id="website" name="website" value="{{ user.website }}" placeholder="Your website">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="email">Email (Optional)</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" placeholder="Your email">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h3>Profile Media</h3>
+                                    
+                                    <div class="form-group">
+                                        <label for="profile_pic">Profile Picture</label>
+                                        <input type="file" class="form-control-file" id="profile_pic" name="profile_pic">
+                                        <small class="form-text text-muted">Max size: 5MB. Recommended size: 500x500px.</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="profile_music">Profile Music</label>
+                                        <input type="file" class="form-control-file" id="profile_music" name="profile_music">
+                                        <small class="form-text text-muted">Max size: 10MB. Supported formats: MP3, WAV.</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h3>Game Skills</h3>
+                                    <p class="text-muted">Set your skill tiers for different game modes. Valid formats are "HT1" to "HT5" or "LT1" to "LT5".</p>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="npot_tier">Nether Pot (NPOT)</label>
+                                                <select class="form-control" id="npot_tier" name="npot_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.npot_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.npot_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.npot_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.npot_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.npot_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.npot_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.npot_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.npot_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.npot_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.npot_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="uhc_tier">Ultra Hardcore (UHC)</label>
+                                                <select class="form-control" id="uhc_tier" name="uhc_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.uhc_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.uhc_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.uhc_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.uhc_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.uhc_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.uhc_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.uhc_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.uhc_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.uhc_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.uhc_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="sword_tier">Sword Combat</label>
+                                                <select class="form-control" id="sword_tier" name="sword_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.sword_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.sword_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.sword_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.sword_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.sword_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.sword_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.sword_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.sword_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.sword_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.sword_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="smp_tier">Survival Multiplayer (SMP)</label>
+                                                <select class="form-control" id="smp_tier" name="smp_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.smp_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.smp_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.smp_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.smp_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.smp_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.smp_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.smp_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.smp_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.smp_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.smp_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="cpvp_tier">Crystal PVP (CPVP)</label>
+                                                <select class="form-control" id="cpvp_tier" name="cpvp_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.cpvp_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.cpvp_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.cpvp_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.cpvp_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.cpvp_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.cpvp_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.cpvp_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.cpvp_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.cpvp_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.cpvp_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="axe_tier">Axe Combat</label>
+                                                <select class="form-control" id="axe_tier" name="axe_tier">
+                                                    <option value="">Unranked</option>
+                                                    <option value="LT1" {% if user.axe_tier == 'LT1' %}selected{% endif %}>LT1</option>
+                                                    <option value="LT2" {% if user.axe_tier == 'LT2' %}selected{% endif %}>LT2</option>
+                                                    <option value="LT3" {% if user.axe_tier == 'LT3' %}selected{% endif %}>LT3</option>
+                                                    <option value="LT4" {% if user.axe_tier == 'LT4' %}selected{% endif %}>LT4</option>
+                                                    <option value="LT5" {% if user.axe_tier == 'LT5' %}selected{% endif %}>LT5</option>
+                                                    <option value="HT1" {% if user.axe_tier == 'HT1' %}selected{% endif %}>HT1</option>
+                                                    <option value="HT2" {% if user.axe_tier == 'HT2' %}selected{% endif %}>HT2</option>
+                                                    <option value="HT3" {% if user.axe_tier == 'HT3' %}selected{% endif %}>HT3</option>
+                                                    <option value="HT4" {% if user.axe_tier == 'HT4' %}selected{% endif %}>HT4</option>
+                                                    <option value="HT5" {% if user.axe_tier == 'HT5' %}selected{% endif %}>HT5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="submit" class="cosmic-btn primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="tab-content" id="change-password">
+                            <form action="{{ url_for('change_password') }}" method="post">
+                                <div class="form-section">
+                                    <h3>Change Password</h3>
+                                    
+                                    <div class="form-group">
+                                        <label for="current_password">Current Password</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="new_password">New Password</label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="confirm_password">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="submit" class="cosmic-btn primary">Change Password</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        {% if user_team %}
+                        <div class="tab-content" id="team-info">
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <div class="team-logo">
+                                        {% if user_team.logo %}
+                                        <img src="{{ url_for('static', filename=user_team.logo) }}" alt="{{ user_team.name }} logo">
+                                        {% else %}
+                                        <div class="default-logo">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="team-details">
+                                        <h3>{{ user_team.name }}</h3>
+                                        <p>{{ user_team.description }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="team-stats">
+                                    <div class="stat">
+                                        <i class="fas fa-trophy"></i>
+                                        <span>{{ user_team.points }} points</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="fas fa-users"></i>
+                                        <span>{{ user_team.member_count }} members</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="team-actions">
+                                    <a href="{{ url_for('view_team', team_id=user_team.id) }}" class="cosmic-btn primary">
+                                        <i class="fas fa-eye"></i> View Team
+                                    </a>
+                                    
+                                    {% if user_team.is_leader %}
+                                    <a href="{{ url_for('edit_team', team_id=user_team.id) }}" class="cosmic-btn secondary">
+                                        <i class="fas fa-edit"></i> Edit Team
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <form action="{{ url_for('leave_team', team_id=user_team.id) }}" method="post" class="inline-form">
+                                        <button type="submit" class="cosmic-btn danger" onclick="return confirm('Are you sure you want to leave this team?')">
+                                            <i class="fas fa-sign-out-alt"></i> Leave Team
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons and contents
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Profile picture preview
+            const profilePicInput = document.getElementById('profile_pic');
+            if (profilePicInput) {
+                profilePicInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const avatar = document.querySelector('.profile-avatar img');
+                            if (avatar) {
+                                avatar.src = e.target.result;
+                            } else {
+                                const defaultAvatar = document.querySelector('.default-avatar');
+                                if (defaultAvatar) {
+                                    defaultAvatar.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                                }
+                            }
+                        }
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/loaders.js') }}"></script>
+</body>
+</html> 
