@@ -35,553 +35,388 @@ nav ul li a.active::after {
 }
 
 .profile-container {
+    background-color: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 30px auto;
+    overflow: hidden;
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 2rem;
 }
 
-/* Profile Sidebar */
+.profile-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: white;
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-header h1 {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-content {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+}
+
+/* Sidebar Styles */
 .profile-sidebar {
-    background-color: var(--card-bg-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    overflow: hidden;
+    flex: 0 0 300px;
+    background-color: rgba(17, 24, 39, 0.7);
+    padding: 30px;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .profile-avatar {
-    padding: 2rem;
-    text-align: center;
-    background: linear-gradient(135deg, #4a6cf7, #6a11cb);
-    color: var(--light-color);
-}
-
-.avatar-image {
-    width: 120px;
-    height: 120px;
-    background-color: var(--light-color);
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
     border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    position: relative;
+    border: 3px solid #3b82f6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.avatar-image i {
-    font-size: 4rem;
-    color: var(--primary-color);
-}
-
-.avatar-image img {
+.profile-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.default-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2563eb;
+    color: white;
+    font-size: 4rem;
+}
+
+.profile-username {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-username h2 {
+    margin: 0 0 5px;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.profile-username .full-name {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.profile-stats {
+    margin-bottom: 25px;
+}
+
+.profile-stats .stat {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #cbd5e1;
+}
+
+.profile-stats .stat i {
+    margin-right: 10px;
+    color: #3b82f6;
+    width: 20px;
+    text-align: center;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-actions .cosmic-btn {
+    width: 100%;
+    text-align: center;
+}
+
+/* Main Content Styles */
+.profile-main {
+    flex: 1;
+    padding: 30px;
+    min-width: 300px;
+}
+
+.profile-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: #fff;
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3b82f6;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
     display: block;
 }
 
-.profile-avatar h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.profile-avatar p {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 1.5rem;
-}
-
-.upload-avatar-btn {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: var(--light-color);
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    display: inline-block;
-}
-
-.upload-avatar-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-.upload-avatar-btn i {
-    margin-right: 0.5rem;
-}
-
-.profile-menu {
-    padding: 1rem 0;
-}
-
-.profile-menu a {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    color: var(--text-color);
-    transition: var(--transition);
-    font-weight: 500;
-}
-
-.profile-menu a i {
-    margin-right: 0.8rem;
-    width: 20px;
-    text-align: center;
-    color: var(--secondary-color);
-}
-
-.profile-menu a:hover,
-.profile-menu a.active {
-    background-color: rgba(74, 108, 247, 0.1);
-    color: var(--primary-color);
-}
-
-.profile-menu a:hover i,
-.profile-menu a.active i {
-    color: var(--primary-color);
-}
-
-/* Profile Content */
-.profile-content {
-    background-color: var(--card-bg-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 2rem;
-}
-
-.profile-section {
-    margin-bottom: 3rem;
-}
-
-.profile-section:last-child {
-    margin-bottom: 0;
-}
-
-.profile-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-    color: var(--dark-color);
-}
-
-.section-description {
-    color: var(--secondary-color);
-    margin-bottom: 2rem;
-}
-
-/* Alert Messages */
-.alert {
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 1.5rem;
-}
-
-.success {
-    background-color: rgba(40, 167, 69, 0.1);
-    color: var(--success-color);
-    border: 1px solid var(--success-color);
-}
-
-.error {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-}
-
-.info {
-    background-color: rgba(23, 162, 184, 0.1);
-    color: var(--info-color);
-    border: 1px solid var(--info-color);
-}
-
 /* Form Styles */
-.profile-form {
-    margin-bottom: 2rem;
+.form-section {
+    background-color: rgba(17, 24, 39, 0.5);
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #fff;
+    font-size: 1.3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
+    color: #cbd5e1;
     font-weight: 500;
-    color: var(--dark-color);
 }
 
-.form-group input,
-.form-group textarea {
+.form-control {
     width: 100%;
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-family: inherit;
+    padding: 12px 15px;
+    background-color: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #fff;
     font-size: 1rem;
-    transition: var(--transition);
+    transition: border-color 0.3s ease;
 }
 
-.form-group textarea {
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.form-control-file {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    color: #cbd5e1;
+}
+
+textarea.form-control {
+    min-height: 120px;
     resize: vertical;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
-}
-
-.form-help {
+.form-text {
+    display: block;
+    margin-top: 5px;
+    color: #94a3b8;
     font-size: 0.85rem;
-    color: var(--secondary-color);
-    margin-top: 0.5rem;
 }
 
-.form-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.save-btn {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--primary-color);
-    color: var(--light-color);
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.save-btn:hover {
-    background-color: #3a5bd9;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 6px rgba(74, 108, 247, 0.2);
-}
-
-.cancel-btn {
-    padding: 0.8rem 1.5rem;
-    background-color: transparent;
-    color: var(--secondary-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.cancel-btn:hover {
-    background-color: var(--border-color);
-}
-
-/* Custom File Input */
-input[type="file"] {
-    padding: 0.6rem;
-}
-
-input[type="file"]::file-selector-button {
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
-    background-color: var(--primary-color);
-    color: var(--light-color);
-    border: none;
-    cursor: pointer;
-    margin-right: 1rem;
-    transition: var(--transition);
-}
-
-input[type="file"]::file-selector-button:hover {
-    background-color: #3a5bd9;
-}
-
-/* Toggle Switch */
-.toggle-option {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.toggle-option:last-child {
-    border-bottom: none;
-}
-
-.toggle-info h4 {
-    margin-bottom: 0.3rem;
-    font-size: 1.1rem;
-}
-
-.toggle-info p {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-}
-
-.toggle-switch {
-    position: relative;
+/* Button Styles */
+.cosmic-btn {
     display: inline-block;
-    width: 50px;
-    height: 24px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
+    padding: 10px 20px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: var(--transition);
-    border-radius: 34px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
 }
 
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: var(--transition);
-    border-radius: 50%;
+.cosmic-btn:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-input:checked + .toggle-slider {
-    background-color: var(--primary-color);
+.cosmic-btn.primary {
+    background-color: #2563eb;
 }
 
-input:focus + .toggle-slider {
-    box-shadow: 0 0 1px var(--primary-color);
+.cosmic-btn.secondary {
+    background-color: #4b5563;
 }
 
-input:checked + .toggle-slider:before {
-    transform: translateX(26px);
+.cosmic-btn.danger {
+    background-color: #dc2626;
 }
 
-/* Security Options */
-.security-options,
-.notification-options,
-.privacy-options {
-    margin-top: 2rem;
+.cosmic-btn.danger:hover {
+    background-color: #b91c1c;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
-.security-options h3,
-.notification-options h3,
-.privacy-options h3 {
-    margin-bottom: 1rem;
-    font-size: 1.3rem;
+.cosmic-btn i {
+    margin-right: 8px;
 }
 
-/* Danger Zone */
-.danger-zone {
-    margin-top: 3rem;
-    padding: 1.5rem;
-    border: 1px solid var(--danger-color);
-    border-radius: var(--border-radius);
+/* Team Card Styles */
+.team-card {
+    background-color: rgba(17, 24, 39, 0.5);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.danger-zone h3 {
-    color: var(--danger-color);
-    margin-bottom: 0.5rem;
-    font-size: 1.3rem;
-}
-
-.danger-zone p {
-    color: var(--secondary-color);
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-}
-
-.danger-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.danger-btn {
-    padding: 0.8rem 1.5rem;
-    background-color: transparent;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
+.team-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    margin-bottom: 20px;
 }
 
-.danger-btn:hover {
-    background-color: var(--danger-color);
-    color: var(--light-color);
-}
-
-/* Minecraft Tiers Section */
-.minecraft-tiers-container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.tier-categories {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.tier-category {
-    background-color: #f5f5f5;
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.tier-category h3 {
-    margin-bottom: 1rem;
-    font-size: 1.3rem;
-    color: var(--dark-color);
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 0.5rem;
-}
-
-.tier-selection {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.tier-options {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.tier-option {
-    cursor: pointer;
-}
-
-.tier-option input[type="radio"] {
-    display: none;
-}
-
-.tier-label {
+.team-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 20px;
+    background-color: rgba(15, 23, 42, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: white;
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
 }
 
-.tier-s {
-    background-color: #FF5252;
-}
-
-.tier-a {
-    background-color: #FF9800;
-}
-
-.tier-b {
-    background-color: #FFEB3B;
-    color: #333;
-}
-
-.tier-c {
-    background-color: #4CAF50;
-}
-
-.tier-d {
-    background-color: #2196F3;
-}
-
-.tier-option input[type="radio"]:checked + .tier-label {
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    border: 2px solid #333;
-}
-
-.tier-notes {
-    margin-top: 0.5rem;
-}
-
-.tier-notes input {
+.team-logo img {
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    font-size: 0.9rem;
+    height: 100%;
+    object-fit: cover;
 }
 
-.tier-notes input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+.default-logo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    font-size: 2.5rem;
 }
 
-/* Add a menu item for Minecraft Tiers */
-.profile-menu a[href="#minecraft-tiers"] i {
-    color: #5bac1f;
+.team-details h3 {
+    margin: 0 0 10px;
+    color: #fff;
 }
 
-/* Media Queries for Tiers */
-@media screen and (max-width: 768px) {
-    .tier-options {
-        justify-content: center;
-    }
+.team-details p {
+    margin: 0;
+    color: #94a3b8;
 }
 
-@media screen and (min-width: 768px) {
-    .tier-selection {
-        flex-direction: row;
-        align-items: center;
-    }
-    
-    .tier-options {
-        flex: 0 0 auto;
-    }
-    
-    .tier-notes {
-        flex: 1;
-        margin-top: 0;
-        margin-left: 1rem;
+.team-stats {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.team-stats .stat {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    color: #cbd5e1;
+}
+
+.team-stats .stat i {
+    margin-right: 10px;
+    color: #3b82f6;
+}
+
+.team-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Skills Section Styles */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.col-md-6 {
+    flex: 0 0 calc(50% - 20px);
+    padding: 0 10px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 100%;
     }
 }
 
 /* Responsive Styles */
-@media screen and (max-width: 992px) {
-    .profile-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .profile-sidebar {
-        margin-bottom: 2rem;
-    }
-}
-
-@media screen and (max-width: 576px) {
+@media (max-width: 992px) {
     .profile-content {
-        padding: 1.5rem;
-    }
-    
-    .form-actions {
         flex-direction: column;
     }
     
-    .danger-actions {
+    .profile-sidebar {
+        flex: 0 0 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        flex: 1 0 auto;
+    }
+    
+    .team-actions {
         flex-direction: column;
     }
 } 

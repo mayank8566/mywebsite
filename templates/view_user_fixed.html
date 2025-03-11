@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }}'s Profile - CosmicTeams</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/galaxy.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loaders.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tiers.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="galaxy-theme">
+    <header class="cosmic-header">
+        <div class="logo">
+            <h1>Cosmic<span>Teams</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main') }}">Home</a></li>
+                <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('user_id') %}
+                <div class="user-profile">
+                    <a href="{{ url_for('profile') }}" class="profile-btn cosmic-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session.get('username') }}</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile') }}"><i class="fas fa-user-cog"></i> Profile</a>
+                        <a href="{{ url_for('mail_inbox') }}">
+                            <i class="fas fa-envelope"></i> Mail
+                            {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="login-btn cosmic-btn">Login <i class="fas fa-sign-in-alt"></i></a>
+                <a href="{{ url_for('register') }}" class="register-btn cosmic-btn">Register <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h1>{{ user.username }}'s Profile</h1>
+                </div>
+                
+                <div class="profile-content">
+                    <div class="profile-sidebar">
+                        <div class="profile-avatar">
+                            {% if user.profile_pic %}
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.profile_pic) }}" alt="{{ user.username }}'s avatar">
+                            {% else %}
+                                <div class="default-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="profile-username">
+                            <h2>{{ user.username }}</h2>
+                            {% if user.name %}
+                            <p class="full-name">{{ user.name }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="profile-stats">
+                            {% if user.location %}
+                            <div class="stat">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ user.location }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="stat">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Joined {{ user.created_at }}</span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            {% if session.get('user_id') and session.get('user_id') != user.id %}
+                                {% if is_following %}
+                                <form action="{{ url_for('unfollow_user', user_id=user.id) }}" method="post">
+                                    <button type="submit" class="cosmic-btn secondary">
+                                        <i class="fas fa-user-minus"></i> Unfollow
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form action="{{ url_for('follow_user', user_id=user.id) }}" method="post">
+                                    <button type="submit" class="cosmic-btn primary">
+                                        <i class="fas fa-user-plus"></i> Follow
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                <a href="{{ url_for('mail_compose', recipient_id=user.id) }}" class="cosmic-btn secondary">
+                                    <i class="fas fa-envelope"></i> Send Message
+                                </a>
+                                
+                                {% if session.get('is_admin') %}
+                                <a href="{{ url_for('admin_view_user', user_id=user.id) }}" class="cosmic-btn warning">
+                                    <i class="fas fa-shield-alt"></i> Admin View
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="profile-main">
+                        <div class="profile-tabs">
+                            <button class="tab-btn active" data-tab="about">About</button>
+                            <button class="tab-btn" data-tab="skills">Skills</button>
+                            {% if user_team %}
+                            <button class="tab-btn" data-tab="team">Team</button>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="tab-content active" id="about">
+                            <div class="about-section">
+                                <h3>About {{ user.username }}</h3>
+                                {% if user.bio %}
+                                <div class="bio">
+                                    <p>{{ user.bio|nl2br|safe }}</p>
+                                </div>
+                                {% else %}
+                                <p class="no-info">No bio provided.</p>
+                                {% endif %}
+                                
+                                <div class="contact-info">
+                                    <h4>Contact Information</h4>
+                                    <ul>
+                                        {% if user.website %}
+                                        <li>
+                                            <i class="fas fa-globe"></i>
+                                            <a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
+                                        </li>
+                                        {% endif %}
+                                        
+                                        {% if user.email %}
+                                        <li>
+                                            <i class="fas fa-envelope"></i>
+                                            <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="skills">
+                            <div class="skills-section">
+                                <h3>{{ user.username }}'s Skills</h3>
+                                
+                                {% if user_skills %}
+                                <div class="skills-grid">
+                                    {% for skill in user_skills %}
+                                    <div class="skill-card">
+                                        <div class="skill-header">
+                                            <h4>{{ skill.name }}</h4>
+                                            <span class="skill-tier {{ skill.tier_class }}">{{ skill.tier }}</span>
+                                        </div>
+                                        {% if skill.description %}
+                                        <p class="skill-description">{{ skill.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <p class="no-info">No skills information available.</p>
+                                {% endif %}
+                                
+                                <div class="tier-info">
+                                    <h4>Tier Information</h4>
+                                    <div class="tier-grid">
+                                        <div class="tier-card">
+                                            <h5>Low Tier (LT)</h5>
+                                            <ul>
+                                                <li><span class="tier-badge lt1">LT1</span> Beginner</li>
+                                                <li><span class="tier-badge lt2">LT2</span> Novice</li>
+                                                <li><span class="tier-badge lt3">LT3</span> Intermediate</li>
+                                                <li><span class="tier-badge lt4">LT4</span> Competent</li>
+                                                <li><span class="tier-badge lt5">LT5</span> Proficient</li>
+                                            </ul>
+                                        </div>
+                                        <div class="tier-card">
+                                            <h5>High Tier (HT)</h5>
+                                            <ul>
+                                                <li><span class="tier-badge ht1">HT1</span> Advanced</li>
+                                                <li><span class="tier-badge ht2">HT2</span> Expert</li>
+                                                <li><span class="tier-badge ht3">HT3</span> Master</li>
+                                                <li><span class="tier-badge ht4">HT4</span> Elite</li>
+                                                <li><span class="tier-badge ht5">HT5</span> Legendary</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if user_team %}
+                        <div class="tab-content" id="team">
+                            <div class="team-section">
+                                <h3>{{ user.username }}'s Team</h3>
+                                
+                                <div class="team-card">
+                                    <div class="team-header">
+                                        <div class="team-logo">
+                                            {% if user_team.logo %}
+                                            <img src="{{ url_for('static', filename=user_team.logo) }}" alt="{{ user_team.name }} logo">
+                                            {% else %}
+                                            <div class="default-logo">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="team-details">
+                                            <h4>{{ user_team.name }}</h4>
+                                            <p>{{ user_team.description }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-stats">
+                                        <div class="stat">
+                                            <i class="fas fa-trophy"></i>
+                                            <span>{{ user_team.points }} points</span>
+                                        </div>
+                                        <div class="stat">
+                                            <i class="fas fa-users"></i>
+                                            <span>{{ user_team.member_count }} members</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="team-actions">
+                                        <a href="{{ url_for('view_team', team_id=user_team.id) }}" class="cosmic-btn primary">
+                                            <i class="fas fa-eye"></i> View Team
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>COSMIC<span>TEAMS</span></h2>
+                <p>© 2023 CosmicTeams. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">Home</a></li>
+                    <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 CosmicTeams. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons and contents
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Profile music player
+            const musicPlayer = document.getElementById('profile-music');
+            if (musicPlayer) {
+                const playBtn = document.getElementById('play-music');
+                if (playBtn) {
+                    playBtn.addEventListener('click', function() {
+                        if (musicPlayer.paused) {
+                            musicPlayer.play();
+                            this.innerHTML = '<i class="fas fa-pause"></i>';
+                        } else {
+                            musicPlayer.pause();
+                            this.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/loaders.js') }}"></script>
+</body>
+</html> 

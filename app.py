@@ -2448,51 +2448,68 @@ def kick_team_member(team_id, user_id):
 @app.route('/user/<int:user_id>')
 def view_user(user_id):
     """View a user's profile"""
-    # If the user is viewing their own profile, redirect to the profile page
-    if 'user_id' in session and session['user_id'] == user_id:
-        return redirect(url_for('profile'))
-    
-    # Get the user's details
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    
-    # Get user details
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    user = cursor.fetchone()
-    
-    if not user:
-        conn.close()
-        flash('User not found', 'error')
-        return redirect(url_for('main'))
-    
-    # Check if the current user is following this user
-    is_following = False
-    if 'user_id' in session:
-        cursor.execute('''
-            SELECT * FROM user_follows 
-            WHERE follower_id = ? AND following_id = ?
-        ''', (session['user_id'], user_id))
-        if cursor.fetchone():
-            is_following = True
-    
-    # Get user's team
-    user_team = get_user_team(user_id)
-    
-    # Get user's skills from TierManager
     try:
-        user_skills = TierManager.get_user_skills(user_id)
-    except Exception as e:
-        app.logger.error(f"Error getting user skills: {str(e)}")
+        # If the user is viewing their own profile, redirect to the profile page
+        if 'user_id' in session and session['user_id'] == user_id:
+            return redirect(url_for('profile'))
+        
+        # Get the user's details
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get user details
+        cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+        user = cursor.fetchone()
+        
+        if not user:
+            conn.close()
+            flash('User not found', 'error')
+            return redirect(url_for('main'))
+        
+        # Check if the current user is following this user
+        is_following = False
+        if 'user_id' in session:
+            cursor.execute('''
+                SELECT 1 FROM user_follows 
+                WHERE follower_id = ? AND following_id = ?
+            ''', (session.get('user_id'), user_id))
+            is_following = cursor.fetchone() is not None
+        
+        # Get user's team
+        user_team = get_user_team(user_id)
+        
+        # Get user's skills from TierManager
         user_skills = []
-    
-    conn.close()
-    
-    return render_template('view_user.html', 
-                          user=user, 
-                          user_team=user_team, 
-                          is_following=is_following,
-                          user_skills=user_skills)
+        try:
+            if 'TierManager' in globals():
+                user_skills = TierManager.get_user_skills(user_id)
+        except Exception as e:
+            app.logger.error(f"Error getting user skills: {str(e)}")
+        
+        # Get unread mail count for the current user
+        unread_mail_count = 0
+        if 'user_id' in session:
+            try:
+                unread_mail_count = get_unread_mail_count(session.get('user_id'))
+            except Exception as e:
+                app.logger.error(f"Error getting unread mail count: {str(e)}")
+        
+        conn.close()
+        
+        # Use the fixed template that doesn't rely on current_user
+        return render_template('view_user_fixed.html', 
+                              user=user, 
+                              user_team=user_team, 
+                              is_following=is_following,
+                              user_skills=user_skills,
+                              unread_mail_count=unread_mail_count)
+    except Exception as e:
+        app.logger.error(f"Error in view_user: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        flash('An error occurred while loading the user profile', 'error')
+        return redirect(url_for('main'))
 
 @app.route('/teams/<int:team_id>/promote/<int:user_id>', methods=['POST'])
 @login_required
@@ -3389,3 +3406,74 @@ def skill_view(skill_code):
     except Exception as e:
         flash(f"Error loading skill information: {str(e)}", "error")
         return redirect(url_for('leaderboards'))
+
+@app.route('/user/<int:user_id>/follow', methods=['POST'])
+@login_required
+def follow_user(user_id):
+    """Follow a user"""
+    try:
+        follower_id = session.get('user_id')
+        
+        # Don't allow following yourself
+        if follower_id == user_id:
+            flash('You cannot follow yourself', 'error')
+            return redirect(url_for('view_user', user_id=user_id))
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Check if already following
+        cursor.execute('''
+            SELECT 1 FROM user_follows 
+            WHERE follower_id = ? AND following_id = ?
+        ''', (follower_id, user_id))
+        
+        if cursor.fetchone():
+            flash('You are already following this user', 'info')
+        else:
+            # Add follow relationship
+            cursor.execute('''
+                INSERT INTO user_follows (follower_id, following_id, created_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+            ''', (follower_id, user_id))
+            
+            conn.commit()
+            flash('You are now following this user', 'success')
+        
+        conn.close()
+        return redirect(url_for('view_user', user_id=user_id))
+    
+    except Exception as e:
+        app.logger.error(f"Error in follow_user: {str(e)}")
+        flash('An error occurred while trying to follow the user', 'error')
+        return redirect(url_for('view_user', user_id=user_id))
+
+@app.route('/user/<int:user_id>/unfollow', methods=['POST'])
+@login_required
+def unfollow_user(user_id):
+    """Unfollow a user"""
+    try:
+        follower_id = session.get('user_id')
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Remove follow relationship
+        cursor.execute('''
+            DELETE FROM user_follows 
+            WHERE follower_id = ? AND following_id = ?
+        ''', (follower_id, user_id))
+        
+        if cursor.rowcount > 0:
+            flash('You have unfollowed this user', 'success')
+        else:
+            flash('You were not following this user', 'info')
+        
+        conn.commit()
+        conn.close()
+        return redirect(url_for('view_user', user_id=user_id))
+    
+    except Exception as e:
+        app.logger.error(f"Error in unfollow_user: {str(e)}")
+        flash('An error occurred while trying to unfollow the user', 'error')
+        return redirect(url_for('view_user', user_id=user_id))
